@@ -202,14 +202,38 @@ public class BookLoggerActivity extends Activity {
 			dialog = builder.create();			
 			break;
 		case DIALOG_SWITCH_LIST:
-			builder.setTitle(R.string.dialog_switch_title);
-			builder.setMessage(R.string.dialog_switchlist_instructions);
-			builder.setSingleChoiceItems(mDbHelper.fetchAllBookLists(), -1,
+			builder.setTitle(R.string.dialog_switchlist_instructions);
+
+			/**
+			 * ok - this is really weird, if you include a message, than the list options
+			 * *do not* display, the message displays in the spot where the list should be.  So
+			 * don't do this:
+			 * builder.setMessage(R.string.dialog_switchlist_instructions);
+			 * 
+			 */
+			// find the index of the selected item id...
+			Cursor cursor = mDbHelper.fetchAllBookLists();
+			
+			builder.setSingleChoiceItems(cursor, getIndexOfId(cursor),
 					BookLoggerDbAdapter.DB_COL_NAME, new OnClickListener() {
 						@Override
-						public void onClick(DialogInterface dialog, int selectedId) {
-							dialog.dismiss();
+						public void onClick(DialogInterface dialog, int selectedIdx) {
+							/**
+							 * TODO::this next line is not working...
+							 */
+							((AlertDialog) dialog).getListView().setItemChecked(selectedIdx, true);
+							
+							/**
+							 * TODO::This is inefficient - need to cache this cursor somewhere 
+							 * instead of querying the db again...
+							 */
+							Cursor cursor = mDbHelper.fetchAllBookLists();
+							long selectedId = getIdFromIndex(cursor, selectedIdx);
+							mDbHelper.selectBookList(selectedId);
+							populateState();
+							populateBooks();							
 							Log.d(CLASSNAME, "Selected: " + selectedId);
+							dialog.dismiss();
 						}
 					});
 			builder.show();
@@ -577,4 +601,27 @@ public class BookLoggerActivity extends Activity {
 		return (Long) mAllListIds.get(nextIndex);
 	}
 
+	
+	/**
+	 * find the index of the selected book log id
+	 * 
+	 * @param cursor for fetching all book logs
+	 * @return index of the id in the cursor (we'll reverse this later)
+	 */
+	protected int getIndexOfId(Cursor cursor) {
+		
+		while (cursor.moveToNext()) {
+			if (cursor.getLong(0) == mListId) {
+				return cursor.getPosition();
+			}
+		}
+		
+		// if nothing found...
+		return -1;
+	}
+	
+	protected long getIdFromIndex(Cursor cursor, int index) {		
+		cursor.moveToPosition(index); 
+		return cursor.getLong(0);
+	}
 }
