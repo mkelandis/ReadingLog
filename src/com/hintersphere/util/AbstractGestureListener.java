@@ -1,9 +1,6 @@
 package com.hintersphere.util;
 
 import com.hintersphere.booklogger.R;
-import com.hintersphere.booklogger.R.anim;
-import com.hintersphere.booklogger.R.id;
-
 import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.GestureDetector.SimpleOnGestureListener;
