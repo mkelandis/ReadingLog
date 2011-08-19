@@ -18,12 +18,10 @@ import android.database.sqlite.SQLiteCursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Button;
@@ -34,7 +32,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.hintersphere.util.AbstractGestureListener;
 import com.hintersphere.util.RestHelper;
 
 
@@ -80,9 +77,6 @@ public class BookLoggerActivity extends Activity {
     private static final String REMOVE_BOOK_ID = "removeBookId";
     private Long mRemoveBookId = Long.MIN_VALUE;
     
-	private GestureDetector mGestureDetector;
-	private View.OnTouchListener mGestureListener;
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -114,32 +108,6 @@ public class BookLoggerActivity extends Activity {
 				IntentIntegrator.initiateScan(BookLoggerActivity.this);
 			}
 		});
-
-		// handle activity swipe/slide to next/previous list
-		mGestureDetector = new GestureDetector(new AbstractGestureListener(this) {
-			@Override
-			protected void doSlideLeft() {
-				mDbHelper.selectBookList(getNextId());
-				populateState();
-				populateBooks();
-			}
-
-			@Override
-			protected void doSlideRight() {
-				mDbHelper.selectBookList(getPreviousId());
-				populateState();
-				populateBooks();
-			}
-		});
-
-		mGestureListener = new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				if (mGestureDetector.onTouchEvent(event)) {
-					return true;
-				}
-				return false;
-			}
-		};
 	}
     
 	private View getListView() {
@@ -385,17 +353,6 @@ public class BookLoggerActivity extends Activity {
 		}
 	}
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-    	
-    	if (mAllListIds.size() == 1) {
-    		return false;
-    	} else if (mGestureDetector.onTouchEvent(event))
-	        return true;
-	    else
-	    	return false;
-    }
-    
 	/**
 	 * Populates the last selected list from the saved instance state or the database depending 
 	 * on availability
@@ -411,8 +368,6 @@ public class BookLoggerActivity extends Activity {
 			mListId = (Long) savedInstanceState.getSerializable(BookLoggerDbAdapter.DB_COL_LISTID);
 			mListName = (String) savedInstanceState
 					.getSerializable(BookLoggerDbAdapter.DB_COL_NAME);
-//			setTitle(getString(R.string.app_name) + " " + getString(R.string.title_delim) + " "
-//					+ mListName);
 		} else {
 			populateState();
 		}
@@ -443,8 +398,6 @@ public class BookLoggerActivity extends Activity {
 		if (cursor.isBeforeFirst() && cursor.moveToFirst()) {
 			mListId = (Long) cursor.getLong(0);
 			mListName = (String) cursor.getString(1);
-//			setTitle(getString(R.string.app_name) + " " + getString(R.string.title_delim) + " "
-//					+ mListName);
 		}		
 		cursor.close();
 	}
@@ -519,9 +472,6 @@ public class BookLoggerActivity extends Activity {
 		Cursor cursor = mDbHelper.fetchListEntries(mListId.longValue());
         startManagingCursor(cursor);
         
-//		setTitle(getString(R.string.app_name) + " " + getString(R.string.title_delim) + " "
-//				+ mListName + " " + getString(R.string.title_delim) + " " + cursor.getCount());
-        
         int count = cursor.getCount();
         if (count == 1) {
 			setTitle(mListName + " " + getString(R.string.title_delim) + " " + cursor.getCount()
@@ -566,41 +516,6 @@ public class BookLoggerActivity extends Activity {
 			mAllListIds.add(cursor.getLong(0));
 		}
 	}
-	
-	/**
-	 * return the previous list id for swiping right
-	 * @return Long value of previous list id
-	 */
-	private Long getPreviousId() {
-		
-		int prevIndex = mAllListIds.indexOf(mListId);
-		prevIndex--;
-		
-		// handle bounds like a circular queue (move to the end)
-		if (prevIndex < 0) {
-			prevIndex = mAllListIds.size() - 1;			
-		}
-
-		return (Long) mAllListIds.get(prevIndex);
-	}
-	
-	/**
-	 * return the next list id for swiping left
-	 * @return Long value of next list id
-	 */
-	private Long getNextId() {
-		
-		int nextIndex = mAllListIds.indexOf(mListId);
-		nextIndex++;
-		
-		// handle bounds like a circular queue (move to the beginning)
-		if (nextIndex > mAllListIds.size() - 1) {
-			nextIndex = 0;			
-		}
-
-		return (Long) mAllListIds.get(nextIndex);
-	}
-
 	
 	/**
 	 * find the index of the selected book log id
