@@ -28,11 +28,9 @@ public abstract class AbstractGestureListener extends SimpleOnGestureListener {
 	private Animation slideRightOut;
 	private ViewFlipper viewFlipper;
 
-	public AbstractGestureListener(Activity activity) {
+	public AbstractGestureListener(Activity activity, int flipperViewId) {
 		
 		super();
-
-        viewFlipper = (ViewFlipper)activity.findViewById(R.id.flipper);
         slideLeftIn = AnimationUtils.loadAnimation(activity, R.anim.slide_left_in);
         slideLeftOut = AnimationUtils.loadAnimation(activity, R.anim.slide_left_out);
         slideRightIn = AnimationUtils.loadAnimation(activity, R.anim.slide_right_in);
