@@ -1,6 +1,7 @@
 package com.hintersphere.booklogger;
 
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.json.JSONException;
@@ -15,6 +16,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteCursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -65,6 +67,7 @@ public class BookLoggerActivity extends Activity {
     private static final int NEWLIST_ID = Menu.FIRST + 1;    
     private static final int EDITLIST_ID = Menu.FIRST + 2;    
     private static final int SWITCHLIST_ID = Menu.FIRST + 3;    
+    private static final int SENDLIST_ID = Menu.FIRST + 4;    
 
     private BookLoggerDbAdapter mDbHelper;
 
@@ -76,6 +79,8 @@ public class BookLoggerActivity extends Activity {
     // book id to be removed (need to store between showdialog and onCreateDialog)
     private static final String REMOVE_BOOK_ID = "removeBookId";
     private Long mRemoveBookId = Long.MIN_VALUE;
+    
+    private static final String DELIM_TSV = "	";
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -274,6 +279,7 @@ public class BookLoggerActivity extends Activity {
         menu.add(0, NEWLIST_ID, 0, R.string.menu_newlist);
         menu.add(0, EDITLIST_ID, 0, R.string.menu_editlist);
         menu.add(0, SWITCHLIST_ID, 0, R.string.menu_switchlist);
+        menu.add(0, SENDLIST_ID, 0, R.string.menu_sendlist);
         return true;
     }
 
@@ -294,6 +300,26 @@ public class BookLoggerActivity extends Activity {
             	return true;
             case SWITCHLIST_ID:
             	showDialog(DIALOG_SWITCH_LIST);
+            	return true;
+            case SENDLIST_ID:
+            	
+            	// need a cursor to make a pdf
+            	Cursor cursor = mDbHelper.fetchListEntries(mListId);
+            	
+            	// create the pdf to send
+            	BookLoggerPdfAdapter pdfAdapter = new BookLoggerPdfAdapter(this);
+            	File outputFile = pdfAdapter.makePdf("title", (String) getTitle(), cursor);
+            	
+            	Intent intent = new Intent(Intent.ACTION_SEND);
+            	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
+            	/**
+            	 * TODO::use a key here
+            	 * TODO::this doesn't work cause attachment is expected as a filepath
+            	 */
+            	intent.putExtra(Intent.EXTRA_TEXT, "Your book log is attached.");            	
+            	intent.putExtra(Intent.EXTRA_STREAM,  Uri.parse("file://" + outputFile.getAbsolutePath()));
+            	intent.setType("application/pdf");
+            	startActivity(Intent.createChooser(intent, "Email the Log"));
             	return true;
 		}
 
@@ -538,5 +564,46 @@ public class BookLoggerActivity extends Activity {
 	protected long getIdFromIndex(Cursor cursor, int index) {		
 		cursor.moveToPosition(index); 
 		return cursor.getLong(0);
+	}
+	
+	
+	
+	/**
+	 * { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB, DB_COL_ACTIVITY }
+	 * @param cursor
+	 * @return
+	 */
+	protected String formatListForTsv(Cursor cursor) {
+		
+		/**
+		 * TODO::need an initial value of this that makes sense...
+		 */
+		StringBuffer buffer = new StringBuffer();
+		
+		while (cursor.moveToNext()) {
+
+			/**
+			 * TODO::It would be more efficient to replace the tabs when you add the book.
+			 */
+			String title = cursor.getString(1).replace(DELIM_TSV, " ");
+			String author = cursor.getString(2).replace(DELIM_TSV, " ");
+			String activity = "";
+			switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
+			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
+				activity = getString(R.string.menu_childread);
+				break;
+			case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
+				activity = getString(R.string.menu_parentread);
+				break;
+			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
+				activity = getString(R.string.menu_parentchildread);
+				break;
+			}
+			
+			buffer.append(cursor.getPosition() + DELIM_TSV + title + DELIM_TSV + author + DELIM_TSV
+					+ activity);
+		}		
+		
+		return buffer.toString();
 	}
 }

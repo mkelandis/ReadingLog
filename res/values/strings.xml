@@ -18,6 +18,7 @@
     <string name="menu_newlist">+ New Log</string>
     <string name="menu_editlist">Edit Log</string>
     <string name="menu_switchlist">Switch Log</string>
+    <string name="menu_sendlist">Email Log</string>
     <string name="menu_title">Select an Activity, or Remove Book</string>
     <string name="menu_delbook">Remove Book</string>
     <string name="menu_childread">Read by Child</string>
@@ -30,4 +31,10 @@
     <string name="title_delim">-</string>
     <string name="title_books_plural">Books</string>
     <string name="title_books_singular">Book</string>
+    <string name="pdf_col_num">Num</string>
+    <string name="pdf_col_date">Date</string>
+    <string name="pdf_col_title">Title</string>
+    <string name="pdf_col_author">Author</string>
+    <string name="pdf_col_activity">Activity</string>
+    <string name="pdf_col_initials">Parent\'s Initials</string>
 </resources>
