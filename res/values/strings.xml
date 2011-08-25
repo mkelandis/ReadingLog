@@ -31,7 +31,10 @@
     <string name="title_delim">-</string>
     <string name="title_books_plural">Books</string>
     <string name="title_books_singular">Book</string>
-    <string name="pdf_col_num">Num</string>
+    <string name="pdf_doc_keywords">BookLogger Android Books Log School</string>    
+    <string name="pdf_doc_creator">BookLogger for Android</string>    
+    <string name="pdf_doc_author">BookLogger for Android</string>    
+    <string name="pdf_col_num">#</string>
     <string name="pdf_col_date">Date</string>
     <string name="pdf_col_title">Title</string>
     <string name="pdf_col_author">Author</string>

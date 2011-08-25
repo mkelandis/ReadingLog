@@ -2,8 +2,8 @@ package com.hintersphere.booklogger;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.prefs.Preferences;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -18,9 +18,10 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 public class BookLoggerPdfAdapter {
-
-	private static final int NUM_COLS = 6;
 	
+	private static final SimpleDateFormat DATE_FORMAT_SQL = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final SimpleDateFormat DATE_FORMAT_PDF = new SimpleDateFormat("MM/dd/yy");
+
 	private Context mCtx;
 	private Document mDocument;
 		
@@ -52,13 +53,12 @@ public class BookLoggerPdfAdapter {
 		// add metadata
 		mDocument.addTitle(title);
 		mDocument.addSubject(subject);
-		mDocument.addKeywords("BookLogger Android Books Log School");
-		mDocument.addAuthor("Book Logger");
-		mDocument.addCreator("BookLogger for Android");
-
+		mDocument.addKeywords(mCtx.getString(R.string.pdf_doc_keywords));
+		mDocument.addAuthor(mCtx.getString(R.string.pdf_doc_author));
+		mDocument.addCreator(mCtx.getString(R.string.pdf_doc_creator));
 		
 		// kick off the table
-		float[] colswidth = {5f, 10f, 40f, 20f, 15f, 10f};
+		float[] colswidth = {5f, 15f, 40f, 15f, 15f, 10f};
 		PdfPTable table = new PdfPTable(colswidth);
 
 		// t.setBorderColor(BaseColor.GRAY);
@@ -95,10 +95,13 @@ public class BookLoggerPdfAdapter {
 		while (cursor.moveToNext()) {
 
 			// assemble the components of the record...
-			table.addCell("" + (cursor.getPosition() + 1));  // 0 indexed
-			table.addCell(cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT)));
-			table.addCell(cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE)));
-			table.addCell(cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR)));
+			table.addCell("" + (cursor.getPosition() + 1)); // 0 indexed
+			table.addCell(formatDate(cursor.getString(cursor
+					.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT))));
+			table.addCell(cursor.getString(cursor
+							.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE)));
+			table.addCell(cursor
+					.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR)));
 			switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
 				table.addCell(mCtx.getString(R.string.menu_childread));
@@ -123,5 +126,15 @@ public class BookLoggerPdfAdapter {
 		
 		mDocument.close();
 		return outputFile;
+	}
+	
+	private String formatDate(String date) {
+		Date origDate = null;
+		try {
+			origDate = DATE_FORMAT_SQL.parse(date);
+		} catch (Exception e) {
+			throw new BookLoggerException("Could not parse create date from db", e);
+		}
+		return DATE_FORMAT_PDF.format(origDate);
 	}
 }
