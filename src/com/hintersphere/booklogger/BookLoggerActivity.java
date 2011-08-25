@@ -80,8 +80,11 @@ public class BookLoggerActivity extends Activity {
     private static final String REMOVE_BOOK_ID = "removeBookId";
     private Long mRemoveBookId = Long.MIN_VALUE;
     
-    private static final String DELIM_TSV = "	";
+    // local copy of book log cursor
+    private Cursor mListEntriesCursor = null;
+    private boolean mListEntriesCursorDirty = true;
     
+        
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -161,6 +164,7 @@ public class BookLoggerActivity extends Activity {
 			        	  if (mRemoveBookId != Long.MIN_VALUE) {
 			        		  mDbHelper.deleteListEntry(mRemoveBookId);
 			        		  mRemoveBookId = Long.MIN_VALUE;			        		  
+			        		  mListEntriesCursorDirty = true;
 			        	  } else {
 			        		  Log.e(CLASSNAME, "Unable to find id of book to be removed.");
 			        	  }
@@ -204,6 +208,7 @@ public class BookLoggerActivity extends Activity {
 							long selectedId = getIdFromIndex(cursor, selectedIdx);
 							mDbHelper.selectBookList(selectedId);
 							populateState();
+							mListEntriesCursorDirty = true;
 							populateBooks();							
 							Log.d(CLASSNAME, "Selected: " + selectedId);
 							dialog.dismiss();
@@ -238,6 +243,9 @@ public class BookLoggerActivity extends Activity {
 			if (scanResult != null && scanResult.getFormatName().startsWith("EAN")) {
 				// get the isbn...
 				addBookByISBN(scanResult.getContents());
+
+				// here we want to ensure the list is refreshed...
+				mListEntriesCursorDirty = true;
 				populateBooks();
 			} else {
 				// prompt for a re-scan
@@ -292,6 +300,10 @@ public class BookLoggerActivity extends Activity {
             case NEWLIST_ID:
             	Intent i = new Intent(this, BookListEditActivity.class);
             	startActivityForResult(i, ACTIVITY_EDIT_LIST);
+            	
+            	// ensure the list is pulled again
+            	mListEntriesCursorDirty = true;
+            	
             	return true;
             case EDITLIST_ID:
                 i = new Intent(this, BookListEditActivity.class);
@@ -304,11 +316,12 @@ public class BookLoggerActivity extends Activity {
             case SENDLIST_ID:
             	
             	// need a cursor to make a pdf
-            	Cursor cursor = mDbHelper.fetchListEntries(mListId);
+            	Cursor cursor = getListEntriesCursor();
             	
             	// create the pdf to send
             	BookLoggerPdfAdapter pdfAdapter = new BookLoggerPdfAdapter(this);
-            	File outputFile = pdfAdapter.makePdf("title", (String) getTitle(), cursor);
+            	String title = (String) getTitle();
+            	File outputFile = pdfAdapter.makePdf(title, title, cursor);
             	
             	Intent intent = new Intent(Intent.ACTION_SEND);
             	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
@@ -495,7 +508,7 @@ public class BookLoggerActivity extends Activity {
 			return;
 		}
 
-		Cursor cursor = mDbHelper.fetchListEntries(mListId.longValue());
+		Cursor cursor = getListEntriesCursor();
         startManagingCursor(cursor);
         
         int count = cursor.getCount();
@@ -565,45 +578,21 @@ public class BookLoggerActivity extends Activity {
 		cursor.moveToPosition(index); 
 		return cursor.getLong(0);
 	}
-	
-	
-	
-	/**
-	 * { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB, DB_COL_ACTIVITY }
-	 * @param cursor
-	 * @return
-	 */
-	protected String formatListForTsv(Cursor cursor) {
-		
-		/**
-		 * TODO::need an initial value of this that makes sense...
-		 */
-		StringBuffer buffer = new StringBuffer();
-		
-		while (cursor.moveToNext()) {
 
-			/**
-			 * TODO::It would be more efficient to replace the tabs when you add the book.
-			 */
-			String title = cursor.getString(1).replace(DELIM_TSV, " ");
-			String author = cursor.getString(2).replace(DELIM_TSV, " ");
-			String activity = "";
-			switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
-			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
-				activity = getString(R.string.menu_childread);
-				break;
-			case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
-				activity = getString(R.string.menu_parentread);
-				break;
-			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
-				activity = getString(R.string.menu_parentchildread);
-				break;
-			}
-			
-			buffer.append(cursor.getPosition() + DELIM_TSV + title + DELIM_TSV + author + DELIM_TSV
-					+ activity);
-		}		
+	/**
+	 * @return a cached copy of the cursor if possible
+	 */
+	private Cursor getListEntriesCursor() {
 		
-		return buffer.toString();
+		// return a cached copy if possible
+		if (mListEntriesCursorDirty == false && mListEntriesCursor != null
+				&& !mListEntriesCursor.isClosed()) {
+			mListEntriesCursor.moveToPosition(-1);
+			return mListEntriesCursor;
+		}
+		
+		mListEntriesCursor = mDbHelper.fetchListEntries(mListId);
+		mListEntriesCursorDirty = false;
+		return mListEntriesCursor;
 	}
 }
