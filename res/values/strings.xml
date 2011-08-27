@@ -31,13 +31,18 @@
     <string name="title_delim">-</string>
     <string name="title_books_plural">Books</string>
     <string name="title_books_singular">Book</string>
+    <string name="pdf_eml_extratext">Your book log is attached.</string>
+    <string name="pdf_eml_intenttitle">Email the Log.</string>
     <string name="pdf_doc_keywords">BookLogger Android Books Log School</string>    
     <string name="pdf_doc_creator">BookLogger for Android</string>    
     <string name="pdf_doc_author">BookLogger for Android</string>    
+    <string name="pdf_summary_instructor">Instructor:</string>
+    <string name="pdf_summary_student">Student:</string>
+    <string name="pdf_summary_total">Total Books:</string>
     <string name="pdf_col_num">#</string>
     <string name="pdf_col_date">Date</string>
     <string name="pdf_col_title">Title</string>
     <string name="pdf_col_author">Author</string>
     <string name="pdf_col_activity">Activity</string>
-    <string name="pdf_col_initials">Parent\'s Initials</string>
+    <string name="pdf_col_initials">Parent Initials</string>
 </resources>

@@ -9,10 +9,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Environment;
 
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Font.FontFamily;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -56,72 +59,121 @@ public class BookLoggerPdfAdapter {
 		mDocument.addKeywords(mCtx.getString(R.string.pdf_doc_keywords));
 		mDocument.addAuthor(mCtx.getString(R.string.pdf_doc_author));
 		mDocument.addCreator(mCtx.getString(R.string.pdf_doc_creator));
+
+		// Summary table for entering name and teacher's name
+		float[] colswidth = {40f, 70f};
+		PdfPTable table = new PdfPTable(colswidth);
+		table.setHorizontalAlignment(Element.ALIGN_LEFT);
+		table.setWidthPercentage(70f);
+		table.setSpacingAfter(18);
+		
+		// Font for styling summary cells
+		Font summaryFont = new Font(FontFamily.HELVETICA, 18, Font.BOLD);
+		PdfPCell cell = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_summary_instructor), summaryFont));
+		cell.setBorder(PdfPCell.NO_BORDER);
+		cell.setHorizontalAlignment(Element.ALIGN_RIGHT);		
+		table.addCell(cell);
+		PdfPCell summaryValueCell = new PdfPCell(new Phrase("", summaryFont));
+		summaryValueCell.setBorder(PdfPCell.BOTTOM);
+		summaryValueCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+		table.addCell(summaryValueCell);
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_summary_student), summaryFont));
+		table.addCell(cell);		
+		table.addCell(summaryValueCell);		
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_summary_total), summaryFont));
+		table.addCell(cell);
+		summaryValueCell.setPhrase(new Phrase("" + cursor.getCount(), summaryFont));
+		summaryValueCell.setBorder(PdfPCell.NO_BORDER);
+		table.addCell(summaryValueCell);		
+
+		try {
+			mDocument.add(table);
+		} catch (DocumentException e) {
+			throw new BookLoggerException("Could not add sumary table to the document.", e);
+		}
+
 		
 		// kick off the table
-		float[] colswidth = {5f, 15f, 40f, 15f, 15f, 10f};
-		PdfPTable table = new PdfPTable(colswidth);
+		float[] colswidth2 = {5f, 10f, 40f, 20f, 15f, 10f};
+		table = new PdfPTable(colswidth2);
+		table.setHorizontalAlignment(Element.ALIGN_LEFT);
+		table.setWidthPercentage(100f);
+		
+		// Font for styling header cells
+		Font headerFont = new Font(FontFamily.HELVETICA, 12, Font.BOLD);
 
-		// t.setBorderColor(BaseColor.GRAY);
-		// t.setPadding(4);
-		// t.setSpacing(4);
-		// t.setBorderWidth(1);
+		// Font for styling list cells
+		Font listFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL);
 
-		PdfPCell c1 = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_col_num)));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(c1);
+		cell = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_col_num), headerFont));
+		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+		cell.setBorderColor(BaseColor.LIGHT_GRAY);
+		table.addCell(cell);
 
-		c1 = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_col_date)));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(c1);
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_col_date), headerFont));
+		table.addCell(cell);
 
-		c1 = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_col_title)));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(c1);
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_col_title), headerFont));
+		table.addCell(cell);
 
-		c1 = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_col_author)));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(c1);
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_col_author), headerFont));
+		table.addCell(cell);
 
-		c1 = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_col_activity)));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(c1);
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_col_activity), headerFont));
+		table.addCell(cell);
 
-		c1 = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_col_initials)));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-		table.addCell(c1);
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_col_initials), headerFont));
+		table.addCell(cell);
 
 		table.setHeaderRows(1);
-
+		cell = new PdfPCell();
+		cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+		cell.setBorderColor(BaseColor.LIGHT_GRAY);
+		
 		while (cursor.moveToNext()) {
 
 			// assemble the components of the record...
-			table.addCell("" + (cursor.getPosition() + 1)); // 0 indexed
-			table.addCell(formatDate(cursor.getString(cursor
-					.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT))));
-			table.addCell(cursor.getString(cursor
-							.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE)));
-			table.addCell(cursor
-					.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR)));
+			cell.setPhrase(new Phrase("" + (cursor.getPosition() + 1), listFont));
+			table.addCell(cell); // 0 indexed
+			cell.setPhrase(new Phrase(formatDate(cursor.getString(cursor
+					.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT))), listFont));
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);			
+			table.addCell(cell);
+			
+			cell.setPhrase(new Phrase(cursor.getString(cursor
+					.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE)), listFont));
+			cell.setHorizontalAlignment(Element.ALIGN_LEFT);			
+			table.addCell(cell);
+			
+			cell.setPhrase(new Phrase(cursor
+					.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR)), listFont));
+			table.addCell(cell);
+			
 			switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
-				table.addCell(mCtx.getString(R.string.menu_childread));
+				cell.setPhrase(new Phrase(mCtx.getString(R.string.menu_childread), listFont));
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
-				table.addCell(mCtx.getString(R.string.menu_parentread));
+				cell.setPhrase(new Phrase(mCtx.getString(R.string.menu_parentread), listFont));
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
-				table.addCell(mCtx.getString(R.string.menu_parentchildread));
+				cell.setPhrase(new Phrase(mCtx.getString(R.string.menu_parentchildread), listFont));
 				break;
 			}
-			
+
+			table.addCell(cell);
+
 			// empty cell for the initials
-			table.addCell("");			
+			cell.setPhrase(new Phrase("", listFont));
+			table.addCell(cell);			
 		}		
 
 		try {
 			mDocument.add(table);
 		} catch (DocumentException e) {
-			throw new BookLoggerException("Could not add table to the document.", e);
+			throw new BookLoggerException("Could not add list table to the document.", e);
 		}
 		
 		mDocument.close();

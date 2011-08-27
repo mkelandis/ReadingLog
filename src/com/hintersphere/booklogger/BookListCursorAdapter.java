@@ -33,7 +33,7 @@ public class BookListCursorAdapter extends SimpleCursorAdapter {
 		// handle the activity text
 		TextView activityTextView = (TextView) view.findViewById(R.id.activity);
 
-		switch (cursor.getInt(cursor.getColumnIndex("activity"))) {
+		switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
 				activityTextView.setText(R.string.menu_childread);
 				break;
@@ -46,7 +46,7 @@ public class BookListCursorAdapter extends SimpleCursorAdapter {
 		}
 
 		// handle the book thumbnail
-		String imageUrl = cursor.getString(cursor.getColumnIndex("thumb"));
+		String imageUrl = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB));
 		Bitmap bitmap = mRestHelper.getBitmap(imageUrl);
 		ImageView thumbnailView = (ImageView) view.findViewById(R.id.bookthumb);
 		thumbnailView.setImageBitmap(bitmap);

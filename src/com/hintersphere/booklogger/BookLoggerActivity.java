@@ -329,10 +329,10 @@ public class BookLoggerActivity extends Activity {
             	 * TODO::use a key here
             	 * TODO::this doesn't work cause attachment is expected as a filepath
             	 */
-            	intent.putExtra(Intent.EXTRA_TEXT, "Your book log is attached.");            	
+            	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext));            	
             	intent.putExtra(Intent.EXTRA_STREAM,  Uri.parse("file://" + outputFile.getAbsolutePath()));
             	intent.setType("application/pdf");
-            	startActivity(Intent.createChooser(intent, "Email the Log"));
+            	startActivity(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)));
             	return true;
 		}
 
@@ -365,6 +365,7 @@ public class BookLoggerActivity extends Activity {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		mListEntriesCursorDirty = true; // mark dirty so the list is refreshed
 		switch (item.getItemId()) {
 		case R.id.parent:
 			item.setChecked(true);
@@ -421,8 +422,6 @@ public class BookLoggerActivity extends Activity {
     	if (mListId == Long.MIN_VALUE) {
     		// create the first time book list
     		mListName = this.getString(R.string.default_list_name);
-//			setTitle(getString(R.string.app_name) + " " + getString(R.string.title_delim) + " "
-//					+ mListName);
     		mListId = Long.valueOf(mDbHelper.createBookList(mListName));		
     		// prompt for a first time scan
     		showDialog(DIALOG_FIRST_TIME);
