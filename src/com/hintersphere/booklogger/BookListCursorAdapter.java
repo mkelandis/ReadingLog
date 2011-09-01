@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
 import com.hintersphere.util.RestHelper;
 
 /**
@@ -47,9 +48,13 @@ public class BookListCursorAdapter extends SimpleCursorAdapter {
 
 		// handle the book thumbnail
 		String imageUrl = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB));
-		Bitmap bitmap = mRestHelper.getBitmap(imageUrl);
 		ImageView thumbnailView = (ImageView) view.findViewById(R.id.bookthumb);
-		thumbnailView.setImageBitmap(bitmap);
+		if (imageUrl == null || "".equals(imageUrl)) {
+			thumbnailView.setImageBitmap(null);
+		} else {
+			Bitmap bitmap = mRestHelper.getBitmap(imageUrl);
+			thumbnailView.setImageBitmap(bitmap);
+		}
 	}
 
 }

@@ -36,7 +36,7 @@
     <string name="pdf_doc_keywords">BookLogger Android Books Log School</string>    
     <string name="pdf_doc_creator">BookLogger for Android</string>    
     <string name="pdf_doc_author">BookLogger for Android</string>    
-    <string name="pdf_summary_instructor">Instructor:</string>
+    <string name="pdf_summary_instructor">Teacher:</string>
     <string name="pdf_summary_student">Student:</string>
     <string name="pdf_summary_total">Total Books:</string>
     <string name="pdf_col_num">#</string>
@@ -45,4 +45,5 @@
     <string name="pdf_col_author">Author</string>
     <string name="pdf_col_activity">Activity</string>
     <string name="pdf_col_initials">Parent Initials</string>
+    <string name="pdf_footer_tagline">Booklogger for Android</string>
 </resources>

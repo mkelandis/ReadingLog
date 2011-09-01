@@ -61,7 +61,7 @@ public class BookLoggerPdfAdapter {
 		mDocument.addCreator(mCtx.getString(R.string.pdf_doc_creator));
 
 		// Summary table for entering name and teacher's name
-		float[] colswidth = {40f, 70f};
+		float[] colswidth = {20f, 70f};
 		PdfPTable table = new PdfPTable(colswidth);
 		table.setHorizontalAlignment(Element.ALIGN_LEFT);
 		table.setWidthPercentage(70f);
@@ -69,9 +69,10 @@ public class BookLoggerPdfAdapter {
 		
 		// Font for styling summary cells
 		Font summaryFont = new Font(FontFamily.HELVETICA, 18, Font.BOLD);
-		PdfPCell cell = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_summary_instructor), summaryFont));
+		PdfPCell cell = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_summary_instructor),
+				summaryFont));
 		cell.setBorder(PdfPCell.NO_BORDER);
-		cell.setHorizontalAlignment(Element.ALIGN_RIGHT);		
+		cell.setHorizontalAlignment(Element.ALIGN_LEFT);		
 		table.addCell(cell);
 		PdfPCell summaryValueCell = new PdfPCell(new Phrase("", summaryFont));
 		summaryValueCell.setBorder(PdfPCell.BOTTOM);
@@ -80,16 +81,17 @@ public class BookLoggerPdfAdapter {
 		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_summary_student), summaryFont));
 		table.addCell(cell);		
 		table.addCell(summaryValueCell);		
-		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_summary_total), summaryFont));
+		cell.setPhrase(new Phrase(mCtx.getString(R.string.pdf_summary_total) + " "
+				+ cursor.getCount(), summaryFont));
+		cell.setColspan(2);
+		cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+		
 		table.addCell(cell);
-		summaryValueCell.setPhrase(new Phrase("" + cursor.getCount(), summaryFont));
-		summaryValueCell.setBorder(PdfPCell.NO_BORDER);
-		table.addCell(summaryValueCell);		
 
 		try {
 			mDocument.add(table);
 		} catch (DocumentException e) {
-			throw new BookLoggerException("Could not add sumary table to the document.", e);
+			throw new BookLoggerException("Could not add summary table to the document.", e);
 		}
 
 		
@@ -98,6 +100,7 @@ public class BookLoggerPdfAdapter {
 		table = new PdfPTable(colswidth2);
 		table.setHorizontalAlignment(Element.ALIGN_LEFT);
 		table.setWidthPercentage(100f);
+		table.setSpacingAfter(8);
 		
 		// Font for styling header cells
 		Font headerFont = new Font(FontFamily.HELVETICA, 12, Font.BOLD);
@@ -174,6 +177,22 @@ public class BookLoggerPdfAdapter {
 			mDocument.add(table);
 		} catch (DocumentException e) {
 			throw new BookLoggerException("Could not add list table to the document.", e);
+		}
+
+		// Font for styling list cells
+		Font footerFont = new Font(FontFamily.HELVETICA, 8, Font.ITALIC);
+		cell = new PdfPCell(new Phrase(mCtx.getString(R.string.pdf_footer_tagline), footerFont));
+		cell.setBorder(PdfPCell.NO_BORDER);
+		cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
+		table = new PdfPTable(1);
+		table.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		table.setWidthPercentage(100f);
+		table.addCell(cell);
+		try {
+			mDocument.add(table);
+		} catch (DocumentException e) {
+			throw new BookLoggerException("Could not add footer table to the document.", e);
 		}
 		
 		mDocument.close();

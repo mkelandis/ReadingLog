@@ -4,6 +4,7 @@ package com.hintersphere.booklogger;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -242,8 +243,12 @@ public class BookLoggerActivity extends Activity {
 					intent);
 			if (scanResult != null && scanResult.getFormatName().startsWith("EAN")) {
 				// get the isbn...
-				addBookByISBN(scanResult.getContents());
-
+				try {
+					addBookByISBN(scanResult.getContents());
+				} catch (BookNotFoundException e) {
+					// TODO show a dialog to allow user to enter manually...
+					e.printStackTrace();
+				}
 				// here we want to ensure the list is refreshed...
 				mListEntriesCursorDirty = true;
 				populateBooks();
@@ -321,14 +326,9 @@ public class BookLoggerActivity extends Activity {
             	// create the pdf to send
             	BookLoggerPdfAdapter pdfAdapter = new BookLoggerPdfAdapter(this);
             	String title = (String) getTitle();
-            	File outputFile = pdfAdapter.makePdf(title, title, cursor);
-            	
+            	File outputFile = pdfAdapter.makePdf(title, title, cursor);            	
             	Intent intent = new Intent(Intent.ACTION_SEND);
             	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
-            	/**
-            	 * TODO::use a key here
-            	 * TODO::this doesn't work cause attachment is expected as a filepath
-            	 */
             	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext));            	
             	intent.putExtra(Intent.EXTRA_STREAM,  Uri.parse("file://" + outputFile.getAbsolutePath()));
             	intent.setType("application/pdf");
@@ -414,8 +414,8 @@ public class BookLoggerActivity extends Activity {
 	}
 	
 	/**
-	 * have any booklists been created? if not, create a default one and start
-	 * the scanning activity on it.
+	 * have any booklists been created? if not, create a default one and start the scanning activity 
+	 * on it.
 	 * @return the id of the selected booklist if one exists
 	 */
 	private void doFirstTimeUser() {
@@ -451,23 +451,29 @@ public class BookLoggerActivity extends Activity {
 	 * Look up all the data we need from Google Books API and get accelerated reader info from ??? 
 	 * Populate the selected list with the book information.
 	 *  
+	 * TODO::Cannot find book: Mythology Greek Gods, Heroes and Monsters
 	 * TODO::Are we happy to just get the first author in the list?
 	 * TODO::Pull the accelerated reader information from somewhere 
 	 * TODO::Enable multiple activities, allow user to select from radio or turn off the dialog for 
-	 * the list 
+	 * the list (us ea default activity)
 	 * TODO::Enable AR info (includes wordcount?)
 	 * 
 	 * @param isbn to pull data from
 	 */
-	private void addBookByISBN(String isbn) {
+	private void addBookByISBN(String isbn) throws BookNotFoundException {
 		
 		RestHelper helper = new RestHelper();
 		JSONObject jsonObject = null;
 		try {
 			jsonObject = helper.getJson(GOOGLE_BOOKS_ISBN_LOOKUP + isbn);
 			
+			JSONArray items = jsonObject.getJSONArray("items");
+			if (items.length() == 0) {
+				throw new BookNotFoundException("Google Books could not find records for: " + isbn);
+			}
+			
 			// just take the first item
-			JSONObject item = jsonObject.getJSONArray("items").getJSONObject(0);
+			JSONObject item = items.getJSONObject(0);
 			if (item != null) {
 				JSONObject volumeInfo = item.getJSONObject("volumeInfo");
 				String title = volumeInfo.getString("title");
@@ -491,8 +497,10 @@ public class BookLoggerActivity extends Activity {
 						BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ, -1, -1, -1);
 			}
 		} catch (JSONException e) {
-			Log.e(CLASSNAME, "Could not process JSON for isbn: [" + isbn + "], JSON: ["
-					+ jsonObject + "]", e);
+			String msg = "Could not process JSON for isbn: [" + isbn + "], JSON: [" + jsonObject
+					+ "]";
+			Log.e(CLASSNAME, msg, e);
+			throw new BookNotFoundException(msg, e);
 		}
 	}
 	
