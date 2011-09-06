@@ -3,11 +3,15 @@ package com.hintersphere.booklogger;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.hintersphere.util.BitmapManager;
 import com.hintersphere.util.RestHelper;
 
 /**
@@ -15,46 +19,122 @@ import com.hintersphere.util.RestHelper;
  * retrieves the thumbnail image from the web (cached if we have a local copy -
  * caching is handled by RestHelper call to connection.setUseCaches())
  * 
+ * TODO::This lazy loading thing did not work - there must be a different strategy
  * @author Michael Landis
  */
-public class BookListCursorAdapter extends SimpleCursorAdapter {
+public class BookListCursorAdapter extends CursorAdapter {
 
 	private RestHelper mRestHelper = new RestHelper();
+	private LayoutInflater mInflater;
+	private int mColIdxTitle;
+	private int mColIdxAuthor;
+	private int mColIdxActivity;
+	private int mColIdxThumb;	
+	private Cursor mCur;
 
-	public BookListCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to) {
-		super(context, layout, c, from, to);
+	// keep a reference to the views so they can be lazily loaded
+	static class ViewHolder {
+		TextView title = null;
+		TextView author = null;
+		TextView activity = null;
+		ImageView thumbnail = null;
+	}
+		
+	public BookListCursorAdapter(Context context, Cursor cursor) {
+		super(context, cursor);
+		mInflater = LayoutInflater.from(context);
+		mColIdxTitle = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE);
+		mColIdxAuthor = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR);
+		mColIdxActivity = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY);
+		mColIdxThumb = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB);
+		mCur = cursor;
+		init(context);
 	}
 
+	public BookListCursorAdapter(Context context, Cursor cursor, boolean autoRequery) {
+		super(context, cursor, autoRequery);
+		mInflater = LayoutInflater.from(context);
+		mColIdxTitle = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE);
+		mColIdxAuthor = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR);
+		mColIdxActivity = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY);
+		mColIdxThumb = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB);
+		mCur = cursor;
+		init(context);
+	}
+	
+	private void init(Context context) {		  
+        BitmapManager.INSTANCE.setPlaceholder(BitmapFactory.decodeResource(  
+                context.getResources(), R.drawable.icon));  
+	}
+	
+	
+	/**
+	 * TODO::It's still jerky - we need to "look ahead" and cache the bookmarks
+	 */
 	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
+	public View getView(int position, View convertView, ViewGroup parent) {
 
-		// do the simple bindings
-		super.bindView(view, context, cursor);
-
-		// handle the activity text
-		TextView activityTextView = (TextView) view.findViewById(R.id.activity);
-
-		switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
+		ViewHolder viewHolder;
+        if (convertView == null) {
+            convertView = this.mInflater.inflate(R.layout.main_row, null);
+            viewHolder = new ViewHolder();
+            viewHolder.title = (TextView) convertView.findViewById(R.id.title);
+            viewHolder.author = (TextView) convertView.findViewById(R.id.author);
+            viewHolder.activity = (TextView) convertView.findViewById(R.id.activity);
+            viewHolder.thumbnail = (ImageView) convertView.findViewById(R.id.bookthumb);
+            convertView.setTag(viewHolder);
+        } else {
+        	viewHolder = (ViewHolder) convertView.getTag();
+        }
+        
+        mCur.moveToPosition(position);
+        
+		// get the title and author
+		viewHolder.title.setText(mCur.getString(mColIdxTitle));
+		viewHolder.author.setText(mCur.getString(mColIdxAuthor));
+		
+		// handle the activity text - db stores key and not application resource name
+		switch (mCur.getInt(mColIdxActivity)) {
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
-				activityTextView.setText(R.string.menu_childread);
+				viewHolder.activity.setText(R.string.menu_childread);
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
-				activityTextView.setText(R.string.menu_parentread);
+				viewHolder.activity.setText(R.string.menu_parentread);
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
-				activityTextView.setText(R.string.menu_parentchildread);
+				viewHolder.activity.setText(R.string.menu_parentchildread);
 				break;
 		}
 
 		// handle the book thumbnail
-		String imageUrl = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB));
-		ImageView thumbnailView = (ImageView) view.findViewById(R.id.bookthumb);
-		if (imageUrl == null || "".equals(imageUrl)) {
-			thumbnailView.setImageBitmap(null);
-		} else {
-			Bitmap bitmap = mRestHelper.getBitmap(imageUrl);
-			thumbnailView.setImageBitmap(bitmap);
+		String imageUrl = mCur.getString(mColIdxThumb);
+		if (imageUrl != null && !"".equals(imageUrl)) {
+			viewHolder.thumbnail.setTag(imageUrl);  
+			BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail, 75, 75);  
 		}
+		
+        return convertView;
 	}
 
+	
+	/**
+	 * TODO::implement this
+	 * @param position
+	 * @return
+	 */
+	private Bitmap getBitmap(int position) {
+		return null;
+	}
+	
+	@Override
+	public View newView(Context arg0, Cursor arg1, ViewGroup arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void bindView(View arg0, Context arg1, Cursor arg2) {
+		// TODO Auto-generated method stub
+		
+	}
 }

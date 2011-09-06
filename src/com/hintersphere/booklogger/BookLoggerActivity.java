@@ -28,9 +28,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -47,6 +47,8 @@ import com.hintersphere.util.RestHelper;
  * - delete list
  * - scan book
  * - info/about 
+ * TODO::List should scroll to bottom after adding a book
+ * TODO::Learn how to invalidate views
  * @author Michael Landis
  */
 public class BookLoggerActivity extends Activity {
@@ -370,16 +372,19 @@ public class BookLoggerActivity extends Activity {
 		case R.id.parent:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ);
+			info.targetView.invalidate();
 			populateBooks();
 			return true;
 		case R.id.child:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ);
+			info.targetView.invalidate();
 			populateBooks();
 			return true;
 		case R.id.parentchild:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ);
+			info.targetView.invalidate();
 			populateBooks();
 			return true;
 		case R.id.delete:
@@ -527,16 +532,8 @@ public class BookLoggerActivity extends Activity {
 					+ " " + getString(R.string.title_books_plural));        	
         }
         
-        // Create an array to specify the fields we want to display in the list (only TITLE)
-		String[] from = new String[] { BookLoggerDbAdapter.DB_COL_TITLE,
-				BookLoggerDbAdapter.DB_COL_AUTHOR, BookLoggerDbAdapter.DB_COL_ACTIVITY};
-		
-        // and an array of the fields we want to bind those fields to (in this case just text1)
-        int[] to = new int[]{R.id.title, R.id.author, R.id.activity};
-        
 		// Now create a simple cursor adapter and set it to display
-		SimpleCursorAdapter books = 
-			new BookListCursorAdapter(this, R.layout.main_row, cursor, from, to);
+		CursorAdapter books = new BookListCursorAdapter(this, cursor);
 		setListAdapter(books);
         
 		// log the cursor for now
