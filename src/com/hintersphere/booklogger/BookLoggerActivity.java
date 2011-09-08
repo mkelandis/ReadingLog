@@ -61,6 +61,7 @@ public class BookLoggerActivity extends Activity {
 	private static final int DIALOG_RESCAN = 1;
 	private static final int DIALOG_REMOVE_BOOK = 2;
 	private static final int DIALOG_SWITCH_LIST = 3;
+	private static final int DIALOG_LIST_EMPTY = 4;
 	
     // activity
     private static final int ACTIVITY_EDIT_LIST = 0;
@@ -158,6 +159,16 @@ public class BookLoggerActivity extends Activity {
 			       });
 			dialog = builder.create();			
 			break;
+		case DIALOG_LIST_EMPTY:
+			builder.setTitle(R.string.dialog_list_empty)
+				   .setMessage(R.string.dialog_list_empty_instructions)
+			       .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			        	   dialog.dismiss();
+			           }
+			       });
+			dialog = builder.create();			
+			break;
 		case DIALOG_REMOVE_BOOK:
 			builder.setTitle(R.string.dialog_removebook_title)
 				   .setMessage(R.string.dialog_removebook_instructions)
@@ -221,6 +232,11 @@ public class BookLoggerActivity extends Activity {
 			dialog = builder.create();			
 			LayoutInflater li = getLayoutInflater();
 			dialog.setContentView(li.inflate(R.layout.switch_list, null, false));
+			/**
+			 * TODO::This next line makes no sense, yet must be here???...
+			 */
+			dialog = null;
+			break;
 		default:
 			dialog = null;
 		}
@@ -254,6 +270,9 @@ public class BookLoggerActivity extends Activity {
 				// here we want to ensure the list is refreshed...
 				mListEntriesCursorDirty = true;
 				populateBooks();
+				/**
+				 * TODO::figure out how to take the user to the bottom of the list
+				 */
 			} else {
 				// prompt for a re-scan
 				showDialog(DIALOG_RESCAN);
@@ -325,6 +344,12 @@ public class BookLoggerActivity extends Activity {
             	// need a cursor to make a pdf
             	Cursor cursor = getListEntriesCursor();
             	
+            	// test cursor to ensure that there is at least one record
+            	if (cursor.getCount() <= 0) {
+                	showDialog(DIALOG_LIST_EMPTY);
+                	return true;
+            	}
+            	
             	// create the pdf to send
             	BookLoggerPdfAdapter pdfAdapter = new BookLoggerPdfAdapter(this);
             	String title = (String) getTitle();
@@ -363,7 +388,19 @@ public class BookLoggerActivity extends Activity {
 		ListView view = (ListView) getListView();
 		return view.getAdapter();
 	}
-
+	
+	/**
+	 * TODO::figure out how to properly refresh the view
+	 *
+	 */
+	private void refreshView() {
+		ListView view = (ListView) getListView();
+		view.invalidate();
+		CursorAdapter cursorAdapter = (CursorAdapter) getListAdapter();
+		cursorAdapter.notifyDataSetChanged();
+		populateBooks();
+	}
+	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
@@ -372,20 +409,17 @@ public class BookLoggerActivity extends Activity {
 		case R.id.parent:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ);
-			info.targetView.invalidate();
-			populateBooks();
+			refreshView();
 			return true;
 		case R.id.child:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ);
-			info.targetView.invalidate();
-			populateBooks();
+			refreshView();
 			return true;
 		case R.id.parentchild:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ);
-			info.targetView.invalidate();
-			populateBooks();
+			refreshView();
 			return true;
 		case R.id.delete:
 			// persist the id in a member variable - we'll pull it out when the

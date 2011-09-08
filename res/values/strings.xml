@@ -12,6 +12,8 @@
     <string name="dialog_removebook_instructions">Are you sure you want to remove this book?</string>
     <string name="dialog_switch_title">Switch Log</string>
     <string name="dialog_switchlist_instructions">Pick a new log to view.</string>
+    <string name="dialog_list_empty">Empty Log</string>
+    <string name="dialog_list_empty_instructions">The Log is empty, please add some books and then try again.</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="menu_addbook">+ Add Book</string>
