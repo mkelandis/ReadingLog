@@ -122,10 +122,6 @@ public class BookLoggerActivity extends Activity {
 		});
 	}
     
-	private View getListView() {
-		return (ListView) findViewById(R.id.mainlist);
-	}
-	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 
@@ -384,6 +380,47 @@ public class BookLoggerActivity extends Activity {
 		
 	}
 
+
+	/**
+	 * TODO::figure out code to refresh single view. 
+	 */
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		mListEntriesCursorDirty = true; // mark dirty so the list is refreshed
+		switch (item.getItemId()) {
+		case R.id.parent:
+			item.setChecked(true);
+			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ);
+//			refreshView();
+			return true;
+		case R.id.child:
+			item.setChecked(true);
+			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ);
+//			refreshView();
+			return true;
+		case R.id.parentchild:
+			item.setChecked(true);
+			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ);
+//			refreshView();
+			return true;
+		case R.id.delete:
+			// persist the id in a member variable - we'll pull it out when the
+			// dialog is handled.
+			mRemoveBookId = info.id;
+			showDialog(DIALOG_REMOVE_BOOK);
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
+
+
+	
+	private View getListView() {
+		return (ListView) findViewById(R.id.mainlist);
+	}	
+
 	private ListAdapter getListAdapter() {
 		ListView view = (ListView) getListView();
 		return view.getAdapter();
@@ -401,37 +438,6 @@ public class BookLoggerActivity extends Activity {
 		populateBooks();
 	}
 	
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		mListEntriesCursorDirty = true; // mark dirty so the list is refreshed
-		switch (item.getItemId()) {
-		case R.id.parent:
-			item.setChecked(true);
-			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ);
-			refreshView();
-			return true;
-		case R.id.child:
-			item.setChecked(true);
-			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ);
-			refreshView();
-			return true;
-		case R.id.parentchild:
-			item.setChecked(true);
-			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ);
-			refreshView();
-			return true;
-		case R.id.delete:
-			// persist the id in a member variable - we'll pull it out when the
-			// dialog is handled.
-			mRemoveBookId = info.id;
-			showDialog(DIALOG_REMOVE_BOOK);
-			return true;
-		default:
-			return super.onContextItemSelected(item);
-		}
-	}
-
 	/**
 	 * Populates the last selected list from the saved instance state or the database depending 
 	 * on availability

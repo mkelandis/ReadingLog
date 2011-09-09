@@ -2,7 +2,6 @@ package com.hintersphere.booklogger;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +18,13 @@ import com.hintersphere.util.RestHelper;
  * retrieves the thumbnail image from the web (cached if we have a local copy -
  * caching is handled by RestHelper call to connection.setUseCaches())
  * 
- * TODO::This lazy loading thing did not work - there must be a different strategy
  * @author Michael Landis
  */
 public class BookListCursorAdapter extends CursorAdapter {
 
+	/**
+	 * TODO::Use the resthelper instead
+	 */
 	private RestHelper mRestHelper = new RestHelper();
 	private LayoutInflater mInflater;
 	private int mColIdxTitle;
@@ -68,9 +69,6 @@ public class BookListCursorAdapter extends CursorAdapter {
 	}
 	
 	
-	/**
-	 * TODO::It's still jerky - we need to "look ahead" and cache the bookmarks
-	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -116,16 +114,6 @@ public class BookListCursorAdapter extends CursorAdapter {
         return convertView;
 	}
 
-	
-	/**
-	 * TODO::implement this
-	 * @param position
-	 * @return
-	 */
-	private Bitmap getBitmap(int position) {
-		return null;
-	}
-	
 	@Override
 	public View newView(Context arg0, Cursor arg1, ViewGroup arg2) {
 		// TODO Auto-generated method stub
