@@ -305,11 +305,11 @@ public class BookLoggerActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
-        menu.add(0, ADDBOOK_ID, 0, R.string.menu_addbook);
-        menu.add(0, NEWLIST_ID, 0, R.string.menu_newlist);
-        menu.add(0, EDITLIST_ID, 0, R.string.menu_editlist);
-        menu.add(0, SWITCHLIST_ID, 0, R.string.menu_switchlist);
-        menu.add(0, SENDLIST_ID, 0, R.string.menu_sendlist);
+        menu.add(0, ADDBOOK_ID, 0, R.string.options_menu_addbook);
+        menu.add(0, NEWLIST_ID, 0, R.string.options_menu_newlist);
+        menu.add(0, EDITLIST_ID, 0, R.string.options_menu_editlist);
+        menu.add(0, SWITCHLIST_ID, 0, R.string.options_menu_switchlist);
+        menu.add(0, SENDLIST_ID, 0, R.string.options_menu_sendlist);
         return true;
     }
 
@@ -367,7 +367,7 @@ public class BookLoggerActivity extends Activity {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_context, menu);
-		menu.setHeaderTitle(R.string.menu_title);
+		menu.setHeaderTitle(R.string.context_menu_title);
 		
 		// display current selection as checked/selected
 		AdapterContextMenuInfo mInfo = (AdapterContextMenuInfo) menuInfo;
@@ -392,17 +392,17 @@ public class BookLoggerActivity extends Activity {
 		case R.id.parent:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ);
-//			refreshView();
+			refreshView();
 			return true;
 		case R.id.child:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ);
-//			refreshView();
+			refreshView();
 			return true;
 		case R.id.parentchild:
 			item.setChecked(true);
 			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ);
-//			refreshView();
+			refreshView();
 			return true;
 		case R.id.delete:
 			// persist the id in a member variable - we'll pull it out when the
@@ -431,13 +431,10 @@ public class BookLoggerActivity extends Activity {
 	 *
 	 */
 	private void refreshView() {
-		ListView view = (ListView) getListView();
-		view.invalidate();
 		CursorAdapter cursorAdapter = (CursorAdapter) getListAdapter();
-		cursorAdapter.notifyDataSetChanged();
-		populateBooks();
+		cursorAdapter.getCursor().requery();
 	}
-	
+
 	/**
 	 * Populates the last selected list from the saved instance state or the database depending 
 	 * on availability

@@ -69,6 +69,9 @@ public class BookListCursorAdapter extends CursorAdapter {
 	}
 	
 	
+	/**
+	 * TODO::Should we show the index of the book in the view?
+	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -94,35 +97,32 @@ public class BookListCursorAdapter extends CursorAdapter {
 		// handle the activity text - db stores key and not application resource name
 		switch (mCur.getInt(mColIdxActivity)) {
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
-				viewHolder.activity.setText(R.string.menu_childread);
+				viewHolder.activity.setText(R.string.context_menu_childread);
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
-				viewHolder.activity.setText(R.string.menu_parentread);
+				viewHolder.activity.setText(R.string.context_menu_parentread);
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
-				viewHolder.activity.setText(R.string.menu_parentchildread);
+				viewHolder.activity.setText(R.string.context_menu_parentchildread);
 				break;
 		}
 
 		// handle the book thumbnail
 		String imageUrl = mCur.getString(mColIdxThumb);
-		if (imageUrl != null && !"".equals(imageUrl)) {
+//		if (imageUrl != null && !"".equals(imageUrl)) {
 			viewHolder.thumbnail.setTag(imageUrl);  
 			BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail, 75, 75);  
-		}
+//		}
 		
         return convertView;
 	}
 
 	@Override
 	public View newView(Context arg0, Cursor arg1, ViewGroup arg2) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void bindView(View arg0, Context arg1, Cursor arg2) {
-		// TODO Auto-generated method stub
-		
 	}
 }

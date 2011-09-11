@@ -156,13 +156,13 @@ public class BookLoggerPdfAdapter {
 			
 			switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
-				cell.setPhrase(new Phrase(mCtx.getString(R.string.menu_childread), listFont));
+				cell.setPhrase(new Phrase(mCtx.getString(R.string.context_menu_childread), listFont));
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
-				cell.setPhrase(new Phrase(mCtx.getString(R.string.menu_parentread), listFont));
+				cell.setPhrase(new Phrase(mCtx.getString(R.string.context_menu_parentread), listFont));
 				break;
 			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
-				cell.setPhrase(new Phrase(mCtx.getString(R.string.menu_parentchildread), listFont));
+				cell.setPhrase(new Phrase(mCtx.getString(R.string.context_menu_parentchildread), listFont));
 				break;
 			}
 

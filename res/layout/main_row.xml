@@ -7,7 +7,7 @@
 
 	<ImageView android:id="@+id/bookthumb" android:layout_width="wrap_content"
 		android:gravity="center_vertical" android:layout_height="wrap_content" 
-		android:minWidth="120px"/>
+		android:minWidth="100px"/>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -15,7 +15,8 @@
 
 		<TextView android:id="@+id/title"
 			xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			android:layout_width="wrap_content" android:layout_height="wrap_content" 
+			android:textStyle="bold" />
 
 		<TextView android:id="@+id/author"
 			xmlns:android="http://schemas.android.com/apk/res/android"

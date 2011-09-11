@@ -1,10 +1,6 @@
 package com.hintersphere.util;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +8,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -105,17 +100,18 @@ public enum BitmapManager {
 	}
 
 	private Bitmap downloadBitmap(String url, int width, int height) {
-		try {
-			Bitmap bitmap = BitmapFactory.decodeStream((InputStream) new URL(url).getContent());
+//		try {
+//			Bitmap bitmap = BitmapFactory.decodeStream((InputStream) new URL(url).getContent());
+			Bitmap bitmap = RestHelper.getBitmap(url);
 			bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
 			cache.put(url, new SoftReference<Bitmap>(bitmap));
 			return bitmap;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		} catch (MalformedURLException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
-		return null;
+//		return null;
 	}
 }

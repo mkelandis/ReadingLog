@@ -29,7 +29,7 @@ public class RestHelper {
 	 * @param requestUrl to retrieve
 	 * @return Object response
 	 */
-	private Object getResponse(String requestUrl) {
+	private static Object getResponse(String requestUrl) {
 
 		Object obj = null;
 		try {
@@ -42,7 +42,8 @@ public class RestHelper {
 			 * TODO::Determine appropriate error handling approach
 			 */
 			Log.e(CLASSNAME, "Could not get HTTP Response from request: [" + requestUrl + "]", e);
-		}
+			obj = null;	
+		}	
 
 		return obj;
 	}
@@ -73,7 +74,7 @@ public class RestHelper {
 	 * @param url to retrieve
 	 * @return Bitmap representation of response body
 	 */
-	public Bitmap getBitmap(String url) {
+	public static Bitmap getBitmap(String url) {
 		
 		Bitmap bitmap = null;
 		Object response = getResponse(url);
