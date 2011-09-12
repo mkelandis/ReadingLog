@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
@@ -129,6 +130,7 @@ public class BookLoggerActivity extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 
+		final Context ctx = this;
 		Dialog dialog;
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		switch (id) {
@@ -154,7 +156,10 @@ public class BookLoggerActivity extends Activity {
 			       })
 			       .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
 			    	   public void onClick(DialogInterface dialog, int id) {
-			    		   dialog.cancel();
+			    		   Intent i = new Intent(ctx, BookListEntryActivity.class);
+			    		   i.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
+			    		   startActivityForResult(i, ACTIVITY_NEW_ENTRY);
+			    		   mListEntriesCursorDirty = true;
 			    	   }
 			       });
 			dialog = builder.create();			
@@ -293,7 +298,7 @@ public class BookLoggerActivity extends Activity {
 				try {
 					addBookByISBN(scanResult.getContents());
 				} catch (BookNotFoundException e) {
-					// TODO show a dialog to allow user to enter manually...
+					// TODO show a separate dialog to allow user to enter manually...
 					e.printStackTrace();
 				}
 				// here we want to ensure the list is refreshed...

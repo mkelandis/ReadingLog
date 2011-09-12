@@ -122,6 +122,9 @@ public class BookListEntryActivity extends Activity {
     private void saveState() {
     	
     	// don't save if we have canceled the operation (lifecycle concern)
+    	/**
+    	 * TODO::we may need to handle the back button in the same manner
+    	 */
     	if (mIsCanceled) {
     		return;
     	}
