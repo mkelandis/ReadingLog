@@ -20,7 +20,8 @@ public class BookListEntryActivity extends Activity {
     private Long mEntryId;
     private Long mListId;
     private BookLoggerDbAdapter mDbHelper;
-
+    private boolean mIsCanceled = false;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {    	
 
@@ -70,7 +71,8 @@ public class BookListEntryActivity extends Activity {
         	 * to examine and determine how to handle the cancel, and then apply it to the 
         	 * edit log function as well.
         	 */
-        	public void onClick(View view) {        		
+        	public void onClick(View view) {
+        		mIsCanceled = true;
         	    if (mEntryId != null && mEntryId.longValue() > 0) {
         	    	mDbHelper.deleteListEntry(mEntryId);
         	    }
@@ -78,6 +80,7 @@ public class BookListEntryActivity extends Activity {
         	    finish();
         	}
         });		
+        mIsCanceled = false;
     }
     
     /**
@@ -117,6 +120,12 @@ public class BookListEntryActivity extends Activity {
     }
     
     private void saveState() {
+    	
+    	// don't save if we have canceled the operation (lifecycle concern)
+    	if (mIsCanceled) {
+    		return;
+    	}
+    	
         String title = mBookTitle.getText().toString();        
         String author = mAuthor.getText().toString();        
         if (mEntryId == null || mEntryId.longValue() <= 0) {
