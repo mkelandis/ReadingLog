@@ -53,7 +53,8 @@ public class BookListEditActivity extends Activity {
         if (mRowId != null) {
 			Cursor booklist = mDbHelper.fetchBookList(mRowId);
 			if (booklist.isBeforeFirst() && booklist.moveToFirst()) {
-				mListName.setText(booklist.getString(1));
+				mListName.setText(booklist.getString(booklist
+						.getColumnIndex(BookLoggerDbAdapter.DB_COL_NAME)));
 				booklist.close();
 			}
 		}

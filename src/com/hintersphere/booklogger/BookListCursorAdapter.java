@@ -9,9 +9,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.hintersphere.util.BitmapManager;
-import com.hintersphere.util.RestHelper;
 
 /**
  * This cursor adapter pulls resource strings for the book activity and
@@ -22,10 +20,6 @@ import com.hintersphere.util.RestHelper;
  */
 public class BookListCursorAdapter extends CursorAdapter {
 
-	/**
-	 * TODO::Use the resthelper instead
-	 */
-	private RestHelper mRestHelper = new RestHelper();
 	private LayoutInflater mInflater;
 	private int mColIdxTitle;
 	private int mColIdxAuthor;

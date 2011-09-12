@@ -54,7 +54,7 @@ public class RestHelper {
 	 * @param url to retrieve
 	 * @return String representation of response body
 	 */
-	private String getBody(String url) {
+	private static String getBody(String url) {
 
 		String body = null;
 		Object response = getResponse(url);
@@ -94,7 +94,7 @@ public class RestHelper {
 	 * @param url to retrieve
 	 * @return JSON representation of response body
 	 */
-	public JSONObject getJson(String url) throws JSONException {		
+	public static JSONObject getJson(String url) throws JSONException {		
 		// build JSON Object
 		return new JSONObject(getBody(url));
 	}

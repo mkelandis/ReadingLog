@@ -68,7 +68,8 @@ public class BookLoggerDbAdapter {
 			+ "wordcount integer null, "
 			+ "createdt text not null DEFAULT CURRENT_TIMESTAMP);";
 
-	private static final String DB_WHERE_LISTENTRY = "listid = ?";
+	private static final String DB_WHERE_LISTENTRIES = "listid = ?";
+	private static final String DB_WHERE_LISTENTRY = "_id = ?";
 	private static final String DB_WHERE_LASTBOOKLIST = "priority = (SELECT MAX(priority) FROM booklist)";
 	private static final String DB_WHERE_BOOKLIST = "_id = ?";
 	
@@ -258,10 +259,24 @@ public class BookLoggerDbAdapter {
      */
     public boolean updateActivity(long rowId, short activity) {
         ContentValues args = new ContentValues();
-        args.put("activity", activity);
-        return mDb.update("listentry", args, "_id" + "=" + rowId, null) > 0;
+        args.put(DB_COL_ACTIVITY, activity);
+        return mDb.update("listentry", args, DB_COL_ID + "=" + rowId, null) > 0;
     }
 	
+    /**
+     * Update the title and author of a book log entry
+     * @param rowId to be updated
+     * @param title to be updated to
+     * @param author to be updated to
+     * @return true or false if the update failed.
+     */
+    public boolean updateTitleAndAuthor(long rowId, String title, String author) {
+        ContentValues args = new ContentValues();
+        args.put(DB_COL_TITLE, title);
+        args.put(DB_COL_AUTHOR, author);
+        return mDb.update("listentry", args, DB_COL_ID + "=" + rowId, null) > 0;
+    }
+
     /**
      * Delete the listentry with the given rowId
      * 
@@ -270,6 +285,26 @@ public class BookLoggerDbAdapter {
      */
     public boolean deleteListEntry(long rowId) {
         return mDb.delete("listentry", "_id" + "=" + rowId, null) > 0;
+    }
+
+    
+    /**
+     * Delete an entire Book List
+     * 
+     * @param rowId of the book log to remove
+     * @return true if deleted, false otherwise
+     */
+    public boolean deleteList(long rowId) {
+    	boolean success;
+    	
+    	// first delete the entries
+        success = mDb.delete("listentry", "listid" + "=" + rowId, null) > 0;
+        if (!success) {
+        	return false;
+        }
+        
+        // then delete the list
+        return mDb.delete("booklist", "_id" + "=" + rowId, null) > 0;
     }
     
     /**
@@ -284,12 +319,31 @@ public class BookLoggerDbAdapter {
     	Cursor cursor = null;
     	try {
 			cursor = mDb.query("listentry", new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR,
-					DB_COL_THUMB, DB_COL_ACTIVITY, DB_COL_CREATEDT }, DB_WHERE_LISTENTRY, new String[] { String
+					DB_COL_THUMB, DB_COL_ACTIVITY, DB_COL_CREATEDT }, DB_WHERE_LISTENTRIES, new String[] { String
 					.valueOf(listid) }, null, null, null);
     	} catch (Exception e) {
     		Log.e(CLASSNAME, "Error fetching list entries by id", e);
     	}
     	
     	return cursor;
+    }
+    
+    /**
+     * Return a single list entry by id
+     * 
+     * @param listEntryId used in where clause
+     * @return Cursor with single row returned.
+     */
+    public Cursor fetchListEntry(long listEntryId) {
+    	Cursor cursor = null;
+    	try {
+			cursor = mDb.query("listentry", new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR,
+					DB_COL_THUMB, DB_COL_ACTIVITY, DB_COL_CREATEDT }, DB_WHERE_LISTENTRY, new String[] { String
+					.valueOf(listEntryId) }, null, null, null);
+    	} catch (Exception e) {
+    		Log.e(CLASSNAME, "Error fetching list entries by id", e);
+    	}
+    	
+    	return cursor;    	
     }
 }

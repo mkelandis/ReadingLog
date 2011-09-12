@@ -62,9 +62,11 @@ public class BookLoggerActivity extends Activity {
 	private static final int DIALOG_REMOVE_BOOK = 2;
 	private static final int DIALOG_SWITCH_LIST = 3;
 	private static final int DIALOG_LIST_EMPTY = 4;
+	private static final int DIALOG_DELETE_LIST = 5;
 	
     // activity
     private static final int ACTIVITY_EDIT_LIST = 0;
+    private static final int ACTIVITY_NEW_ENTRY = 1;
     
     // options menu stuff
     private static final int ADDBOOK_ID = Menu.FIRST;
@@ -72,6 +74,8 @@ public class BookLoggerActivity extends Activity {
     private static final int EDITLIST_ID = Menu.FIRST + 2;    
     private static final int SWITCHLIST_ID = Menu.FIRST + 3;    
     private static final int SENDLIST_ID = Menu.FIRST + 4;    
+    private static final int DELETELIST_ID = Menu.FIRST + 5;    
+    private static final int NEWENTRY_ID = Menu.FIRST + 6;    
 
     private BookLoggerDbAdapter mDbHelper;
 
@@ -188,6 +192,32 @@ public class BookLoggerActivity extends Activity {
 					});
 			dialog = builder.create();			
 			break;
+		case DIALOG_DELETE_LIST:
+			builder.setTitle(R.string.dialog_removelist_title)
+				   .setMessage(R.string.dialog_removelist_instructions)
+			       .setCancelable(true)
+			       .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			        	  if (mListId != Long.MIN_VALUE) {
+			        		  mDbHelper.deleteList(mListId);
+			        		  mListId = Long.MIN_VALUE;			        		  
+			        		  mListEntriesCursorDirty = true;
+				        	  populateState();
+				        	  populateBooks();
+			        	  } else {
+			        		  String msg = "Unable to find id of book to be removed.";
+			        		  Log.e(CLASSNAME, msg);
+			        		  throw new BookLoggerException(msg);
+			        	  }
+			           }
+			       })
+			       .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+					});
+			dialog = builder.create();			
+			break;
 		case DIALOG_SWITCH_LIST:
 			builder.setTitle(R.string.dialog_switchlist_instructions);
 
@@ -229,7 +259,7 @@ public class BookLoggerActivity extends Activity {
 			LayoutInflater li = getLayoutInflater();
 			dialog.setContentView(li.inflate(R.layout.switch_list, null, false));
 			/**
-			 * TODO::This next line makes no sense, yet must be here???...
+			 * TODO::This next line (dialog = null) makes no sense, yet must be here???...
 			 */
 			dialog = null;
 			break;
@@ -250,6 +280,9 @@ public class BookLoggerActivity extends Activity {
 	        super.onActivityResult(requestCode, resultCode, intent);
 	        populateState();
 	        populateAllListIds(); // we may have added one
+			populateBooks();
+		} else if (requestCode == ACTIVITY_NEW_ENTRY) {
+	        super.onActivityResult(requestCode, resultCode, intent);
 			populateBooks();
 		} else if (requestCode == IntentIntegrator.REQUEST_CODE && resultCode != 0) {
 			// default behavior is to handle scan results
@@ -306,10 +339,12 @@ public class BookLoggerActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
         menu.add(0, ADDBOOK_ID, 0, R.string.options_menu_addbook);
+        menu.add(0, NEWENTRY_ID, 0, R.string.options_menu_newentry);
+        menu.add(0, SENDLIST_ID, 0, R.string.options_menu_sendlist);
+        menu.add(0, SWITCHLIST_ID, 0, R.string.options_menu_switchlist);
         menu.add(0, NEWLIST_ID, 0, R.string.options_menu_newlist);
         menu.add(0, EDITLIST_ID, 0, R.string.options_menu_editlist);
-        menu.add(0, SWITCHLIST_ID, 0, R.string.options_menu_switchlist);
-        menu.add(0, SENDLIST_ID, 0, R.string.options_menu_sendlist);
+        menu.add(0, DELETELIST_ID, 0, R.string.options_menu_deletelist);
         return true;
     }
 
@@ -321,11 +356,9 @@ public class BookLoggerActivity extends Activity {
                 return true;
             case NEWLIST_ID:
             	Intent i = new Intent(this, BookListEditActivity.class);
-            	startActivityForResult(i, ACTIVITY_EDIT_LIST);
-            	
+            	startActivityForResult(i, ACTIVITY_EDIT_LIST);            	
             	// ensure the list is pulled again
-            	mListEntriesCursorDirty = true;
-            	
+            	mListEntriesCursorDirty = true;            	
             	return true;
             case EDITLIST_ID:
                 i = new Intent(this, BookListEditActivity.class);
@@ -356,6 +389,15 @@ public class BookLoggerActivity extends Activity {
             	intent.putExtra(Intent.EXTRA_STREAM,  Uri.parse("file://" + outputFile.getAbsolutePath()));
             	intent.setType("application/pdf");
             	startActivity(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)));
+            	return true;
+            case DELETELIST_ID:
+            	showDialog(DIALOG_DELETE_LIST);
+            	return true;
+            case NEWENTRY_ID:
+                i = new Intent(this, BookListEntryActivity.class);
+                i.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
+                startActivityForResult(i, ACTIVITY_NEW_ENTRY);
+                mListEntriesCursorDirty = true;
             	return true;
 		}
 
@@ -504,10 +546,9 @@ public class BookLoggerActivity extends Activity {
 	 */
 	private void addBookByISBN(String isbn) throws BookNotFoundException {
 		
-		RestHelper helper = new RestHelper();
 		JSONObject jsonObject = null;
 		try {
-			jsonObject = helper.getJson(GOOGLE_BOOKS_ISBN_LOOKUP + isbn);
+			jsonObject = RestHelper.getJson(GOOGLE_BOOKS_ISBN_LOOKUP + isbn);
 			
 			JSONArray items = jsonObject.getJSONArray("items");
 			if (items.length() == 0) {

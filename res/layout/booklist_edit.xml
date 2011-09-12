@@ -14,5 +14,4 @@
 	<Button android:id="@+id/confirm" android:text="@string/booklist_edit_confirm"
 		android:layout_width="fill_parent" android:layout_height="wrap_content" />
 
-
 </LinearLayout>

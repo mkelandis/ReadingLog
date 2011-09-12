@@ -18,8 +18,6 @@ import android.widget.ImageView;
  * This code appropriated from:
  * http://negativeprobability.blogspot.com/2011/08/lazy-loading-of-images-in-listview.html
  * 
- * TODO::Possibly swap mechanism that pulls the images from the web... that will add another 
- * level of caching
  * TODO::How does android handle singletons? If another app were to use this, would the default
  * image possibly be affected by a second app's thread?
  * 
@@ -100,18 +98,9 @@ public enum BitmapManager {
 	}
 
 	private Bitmap downloadBitmap(String url, int width, int height) {
-//		try {
-//			Bitmap bitmap = BitmapFactory.decodeStream((InputStream) new URL(url).getContent());
-			Bitmap bitmap = RestHelper.getBitmap(url);
-			bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-			cache.put(url, new SoftReference<Bitmap>(bitmap));
-			return bitmap;
-//		} catch (MalformedURLException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
-//		return null;
+		Bitmap bitmap = RestHelper.getBitmap(url);
+		bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+		cache.put(url, new SoftReference<Bitmap>(bitmap));
+		return bitmap;
 	}
 }
