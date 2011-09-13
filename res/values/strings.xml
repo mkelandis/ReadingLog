@@ -33,13 +33,13 @@
     <string name="context_menu_parentchildread">Read Together</string>    
     <string name="booklist_edit_title">Book Log Name</string>        
     <string name="booklist_edit_list_name">Log Name</string>    
-    <string name="booklist_edit_confirm">Confirm</string>    
+    <string name="booklist_edit_save">Save</string>    
+    <string name="booklist_edit_cancel">Cancel</string>    
     <string name="manual_entry_activitytitle">Add a Book</string>    
     <string name="manual_entry_title">Title</string>    
     <string name="manual_entry_author">Author</string>
     <string name="manual_entry_save">Save</string>
     <string name="manual_entry_cancel">Cancel</string>
-        
     <string name="button_add_book">Scan Book</string>    
     <string name="title_delim">-</string>
     <string name="title_books_plural">Books</string>

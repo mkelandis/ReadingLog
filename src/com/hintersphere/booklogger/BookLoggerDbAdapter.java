@@ -295,13 +295,9 @@ public class BookLoggerDbAdapter {
      * @return true if deleted, false otherwise
      */
     public boolean deleteList(long rowId) {
-    	boolean success;
     	
-    	// first delete the entries
-        success = mDb.delete("listentry", "listid" + "=" + rowId, null) > 0;
-        if (!success) {
-        	return false;
-        }
+    	// first delete the entries (checking return val messes up - legit not to have rows)
+        mDb.delete("listentry", "listid" + "=" + rowId, null);
         
         // then delete the list
         return mDb.delete("booklist", "_id" + "=" + rowId, null) > 0;

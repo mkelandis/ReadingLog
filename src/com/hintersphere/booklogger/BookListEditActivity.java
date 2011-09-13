@@ -14,7 +14,9 @@ public class BookListEditActivity extends Activity {
     private EditText mListName;
     private Long mRowId;
     private BookLoggerDbAdapter mDbHelper;
-
+    private boolean mIsCanceled = false;
+    private boolean mIsCreatedThisTime = false;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {    	
 
@@ -27,7 +29,8 @@ public class BookListEditActivity extends Activity {
         setTitle(R.string.booklist_edit_title);
         
         mListName = (EditText) findViewById(R.id.booklist_name);
-        Button confirmButton = (Button) findViewById(R.id.confirm);
+        Button saveButton = (Button) findViewById(R.id.save);
+        Button cancelButton = (Button) findViewById(R.id.cancel);
         
 		mRowId = (savedInstanceState == null) ? null : (Long) savedInstanceState
 				.getSerializable(BookLoggerDbAdapter.DB_COL_ID);
@@ -38,13 +41,42 @@ public class BookListEditActivity extends Activity {
 
 		populateFields();
 		
-        confirmButton.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
         	    setResult(RESULT_OK);
         	    finish();
         	}
+        });
+        
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+        	/** 
+        	 * This seems weird, but we need to delete the record if it's there because the db 
+        	 * is also being used to persist the title and author state of the view (following one 
+        	 * of the basic android sample code examples)
+        	 */
+        	public void onClick(View view) {
+        		mIsCanceled = true;
+        	    if (mIsCreatedThisTime && mRowId != null && mRowId.longValue() > 0) {
+        	    	mDbHelper.deleteList(mRowId);
+        	    }
+        	    setResult(RESULT_CANCELED);
+        	    finish();
+        	}
         });		
+        mIsCanceled = false;
     }
+
+    @Override
+    public void onBackPressed() {
+		mIsCanceled = true;
+	    if (mIsCreatedThisTime && mRowId != null && mRowId.longValue() > 0) {
+	    	mDbHelper.deleteList(mRowId);
+	    }
+	    
+	    super.onBackPressed();
+    }
+
+    
     
     /**
      * populate the name of the list from the db so we can edit it.
@@ -80,9 +112,18 @@ public class BookListEditActivity extends Activity {
     }
     
     private void saveState() {
+    	
+    	/**
+    	 * TODO::we may need to handle the back button in the same manner
+    	 */
+    	if (mIsCanceled) {
+    		return;
+    	}
+
         String name = mListName.getText().toString();        
         if (mRowId == null) {
             long id = mDbHelper.createBookList(name);
+            mIsCreatedThisTime = true;
             mDbHelper.selectBookList(id);
             if (id > 0) {
                 mRowId = id;
@@ -91,6 +132,4 @@ public class BookListEditActivity extends Activity {
             mDbHelper.updateBookList(mRowId, name);
         }
     }
-
-	
 }

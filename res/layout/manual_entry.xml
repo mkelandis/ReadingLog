@@ -18,10 +18,16 @@
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:layout_weight="1" android:scrollbars="vertical" />
 
-	<Button android:id="@+id/save" android:text="@string/manual_entry_save"
-		android:layout_width="fill_parent" android:layout_height="wrap_content" />
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
 
-	<Button android:id="@+id/cancel" android:text="@string/manual_entry_cancel"
-		android:layout_width="fill_parent" android:layout_height="wrap_content" />
+		<Button android:id="@+id/save" android:text="@string/manual_entry_save"
+			android:layout_width="150px" android:layout_height="wrap_content" />
+
+		<Button android:id="@+id/cancel" android:text="@string/manual_entry_cancel"
+			android:layout_width="150px" android:layout_height="wrap_content" />
+
+	</LinearLayout>
 
 </LinearLayout>

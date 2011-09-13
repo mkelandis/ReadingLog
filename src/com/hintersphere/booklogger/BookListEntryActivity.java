@@ -66,10 +66,6 @@ public class BookListEntryActivity extends Activity {
         	 * This seems weird, but we need to delete the record if it's there because the db 
         	 * is also being used to persist the title and author state of the view (following one 
         	 * of the basic android sample code examples)
-        	 * 
-        	 * TODO::Looks like the new book is persisted somewhere later in the thread, need
-        	 * to examine and determine how to handle the cancel, and then apply it to the 
-        	 * edit log function as well.
         	 */
         	public void onClick(View view) {
         		mIsCanceled = true;
@@ -81,6 +77,15 @@ public class BookListEntryActivity extends Activity {
         	}
         });		
         mIsCanceled = false;
+    }
+    
+    @Override
+    public void onBackPressed() {
+		mIsCanceled = true;
+	    if (mEntryId != null && mEntryId.longValue() > 0) {
+	    	mDbHelper.deleteListEntry(mEntryId);
+	    }	    
+	    super.onBackPressed();
     }
     
     /**
