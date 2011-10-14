@@ -45,12 +45,14 @@ public class BookLoggerHtmlAdapter {
 		try {
 		    Writer writer = new BufferedWriter(new FileWriter(outputFile));
 
+		    writer.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd\">\n");
+		    writer.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n\n");
 		    writer.append("<html>\n");
-		    writer.append("<title>").append(title).append("</title>\n");
-		    writer.append("<body>\n");
+		    writer.append("<head><title>").append(title).append("</title></head>\n");
+		    writer.append("<body style=\"margin:8px; font-family:Helvetica; background-color:#ffffff;\">\n");
 		    
 		    writer.append("<!-- SUMMARY TABLE -->\n");
-		    writer.append("<table>\n");
+		    writer.append("<table style=\"font-size:18; font-weight:bold;\">\n");
 		    writer.append("<tr>");
 		    summaryHeaderCell(writer, mCtx.getString(R.string.pdf_summary_instructor));
 		    summaryCell(writer, "____________________");
@@ -59,26 +61,27 @@ public class BookLoggerHtmlAdapter {
 		    summaryHeaderCell(writer, mCtx.getString(R.string.pdf_summary_student));
 		    summaryCell(writer, "____________________");
 		    writer.append("</tr>");
-		    writer.append("<tr>");
-		    summaryHeaderCell(writer, mCtx.getString(R.string.pdf_summary_total));
-		    summaryCell(writer, "" + cursor.getCount());
-		    writer.append("</tr>");
+		    writer.append("<tr><th align=\"left\" colspan=\"2\">");
+		    writer.append(mCtx.getString(R.string.pdf_summary_total) + " " + cursor.getCount());
+		    writer.append("</th></tr>");
 		    writer.append("</table>");
 
 		    writer.append("<!-- DATA TABLE -->\n");
-		    writer.append("<table>\n");
-		    writer.append("<tr>\n");
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_date));
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_title));
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_author));
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_activity));
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_initials));
+		    writer.append("<table style=\"border: 0px solid #dddddd;\" cellspacing=\"0\">\n");
+		    writer.append("<tr style=\"background-color:#dddddd;\">\n");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_num), "5%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_date), "10%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_title), "40%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_author), "20%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_activity), "15%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_initials), "10%");
 		    writer.append("</tr>");
 		    
 			while (cursor.moveToNext()) {
 			    writer.append("<tr>\n");
+			    cell(writer, "" + (cursor.getPosition() + 1));
 				cell(writer, formatDate(cursor.getString(cursor
-						.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT))));
+						.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT))), "center");
 				cell(writer, cursor.getString(cursor
 						.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE)));
 			    cell(writer, cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR)));
@@ -93,6 +96,7 @@ public class BookLoggerHtmlAdapter {
 					cell(writer, mCtx.getString(R.string.context_menu_parentchildread));
 					break;
 				}
+			    cell(writer, "");  // empty cell for initials
 			    writer.append("</tr>");
 			}
 			
@@ -107,7 +111,7 @@ public class BookLoggerHtmlAdapter {
 	}
 	
 	private void summaryHeaderCell(Writer writer, String contents) throws IOException {
-		writer.append("<th>");
+		writer.append("<th align=\"left\">");
 		writer.append(contents);
 		writer.append("</th>");
 	}
@@ -116,13 +120,18 @@ public class BookLoggerHtmlAdapter {
 		writer.append(contents);
 		writer.append("</d>");
 	}
-	private void headerCell(Writer writer, String contents) throws IOException {
-		writer.append("<th>");
+
+	private void headerCell(Writer writer, String contents, String width)
+			throws IOException {
+		writer.append("<th width=\"" + width + "\">");
 		writer.append(contents);
 		writer.append("</th>");
 	}
 	private void cell(Writer writer, String contents) throws IOException {
-		writer.append("<td>");
+		cell(writer, contents, "left");
+	}
+	private void cell(Writer writer, String contents, String align) throws IOException {
+		writer.append("<td style=\"border:1px solid #dddddd;\" align=\"" + align + "\">");
 		writer.append(contents);
 		writer.append("</d>");
 	}
