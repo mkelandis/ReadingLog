@@ -385,14 +385,14 @@ public class BookLoggerActivity extends Activity {
             	}
             	
             	// create the pdf to send
-            	BookLoggerPdfAdapter pdfAdapter = new BookLoggerPdfAdapter(this);
+            	BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this);
             	String title = (String) getTitle();
-            	File outputFile = pdfAdapter.makePdf(title, title, cursor);            	
+            	File outputFile = htmlAdapter.makeHtml(title, title, cursor);            	
             	Intent intent = new Intent(Intent.ACTION_SEND);
             	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
             	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext));            	
             	intent.putExtra(Intent.EXTRA_STREAM,  Uri.parse("file://" + outputFile.getAbsolutePath()));
-            	intent.setType("application/pdf");
+            	intent.setType("text/html");
             	startActivity(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)));
             	return true;
             case DELETELIST_ID:
