@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello World, BookLoggerActivity!</string>
-    <string name="app_name">Book Logger</string>
+    <string name="app_name">ReadingLog</string>
     <string name="empty_list">Log is empty</string>    
-    <string name="default_list_name">My Book Log</string>    
-    <string name="dialog_firstTime_title">Welcome to Book Logger!</string>
+    <string name="default_list_name">My Reading Log</string>    
+    <string name="dialog_firstTime_title">Welcome to ReadingLog!</string>
     <string name="dialog_firstTime_instructions">Scan a book\'s barcode to get started.</string>
     <string name="dialog_rescan_title">Sorry, I couldn\'t find it...</string>
     <string name="dialog_rescan_instructions">Please check the inside cover of the book for a different barcode, and re-scan. Click cancel to enter the book information yourself.</string>
@@ -31,7 +31,7 @@
     <string name="context_menu_childread">Read by Child</string>
     <string name="context_menu_parentread">Read by Parent</string>
     <string name="context_menu_parentchildread">Read Together</string>    
-    <string name="booklist_edit_title">Book Log Name</string>        
+    <string name="booklist_edit_title">Reading Log Name</string>        
     <string name="booklist_edit_list_name">Log Name</string>    
     <string name="booklist_edit_save">Save</string>    
     <string name="booklist_edit_cancel">Cancel</string>    
@@ -44,11 +44,11 @@
     <string name="title_delim">-</string>
     <string name="title_books_plural">Books</string>
     <string name="title_books_singular">Book</string>
-    <string name="pdf_eml_extratext">Your book log is attached.</string>
+    <string name="pdf_eml_extratext">Your reading log is attached.</string>
     <string name="pdf_eml_intenttitle">Email the Log.</string>
-    <string name="pdf_doc_keywords">BookLogger Android Books Log School</string>    
-    <string name="pdf_doc_creator">BookLogger for Android</string>    
-    <string name="pdf_doc_author">BookLogger for Android</string>    
+    <string name="pdf_doc_keywords">Reading Log Android Books Log School Parents</string>    
+    <string name="pdf_doc_creator">ReadingLog for Android</string>    
+    <string name="pdf_doc_author">ReadingLog for Android</string>    
     <string name="pdf_summary_instructor">Teacher:</string>
     <string name="pdf_summary_student">Student:</string>
     <string name="pdf_summary_total">Total Books:</string>
@@ -58,5 +58,5 @@
     <string name="pdf_col_author">Author</string>
     <string name="pdf_col_activity">Activity</string>
     <string name="pdf_col_initials">Parent Initials</string>
-    <string name="pdf_footer_tagline">Booklogger for Android</string>
+    <string name="pdf_footer_tagline">ReadingLog for Android</string>
 </resources>

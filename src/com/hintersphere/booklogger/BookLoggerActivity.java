@@ -373,8 +373,7 @@ public class BookLoggerActivity extends Activity {
             case SWITCHLIST_ID:
             	showDialog(DIALOG_SWITCH_LIST);
             	return true;
-            case SENDLIST_ID:
-            	
+            case SENDLIST_ID:            	
             	// need a cursor to make a pdf
             	Cursor cursor = getListEntriesCursor();
             	
@@ -384,14 +383,14 @@ public class BookLoggerActivity extends Activity {
                 	return true;
             	}
             	
-            	// create the pdf to send
+            	// create the pdf to send (had to switch to HTML for now)
             	BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this);
             	String title = (String) getTitle();
             	File outputFile = htmlAdapter.makeHtml(title, title, cursor);            	
             	Intent intent = new Intent(Intent.ACTION_SEND);
             	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
-            	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext));            	
-            	intent.putExtra(Intent.EXTRA_STREAM,  Uri.parse("file://" + outputFile.getAbsolutePath()));
+            	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext)); 
+            	intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + outputFile.getAbsolutePath()));
             	intent.setType("text/html");
             	startActivity(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)));
             	return true;
