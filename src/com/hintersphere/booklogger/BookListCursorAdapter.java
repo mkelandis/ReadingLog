@@ -59,7 +59,7 @@ public class BookListCursorAdapter extends CursorAdapter {
 	
 	private void init(Context context) {		  
         BitmapManager.INSTANCE.setPlaceholder(BitmapFactory.decodeResource(  
-                context.getResources(), R.drawable.launcherico));  
+                context.getResources(), R.drawable.defbookcover));  
 	}
 	
 	
