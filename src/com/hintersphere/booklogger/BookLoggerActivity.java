@@ -240,9 +240,6 @@ public class BookLoggerActivity extends Activity {
 					BookLoggerDbAdapter.DB_COL_NAME, new OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int selectedIdx) {
-							/**
-							 * TODO::this next line is not working...
-							 */
 							((AlertDialog) dialog).getListView().setItemChecked(selectedIdx, true);
 							
 							/**
@@ -304,9 +301,6 @@ public class BookLoggerActivity extends Activity {
 				// here we want to ensure the list is refreshed...
 				mListEntriesCursorDirty = true;
 				populateBooks();
-				/**
-				 * TODO::figure out how to take the user to the bottom of the list
-				 */
 			} else {
 				// prompt for a re-scan
 				showDialog(DIALOG_RESCAN);

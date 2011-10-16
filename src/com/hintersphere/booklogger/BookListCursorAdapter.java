@@ -64,7 +64,7 @@ public class BookListCursorAdapter extends CursorAdapter {
 	
 	
 	/**
-	 * TODO::Should we show the index of the book in the view?
+	 * Should we show the index of the book in the view? --Right now I think it's ok without.
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
