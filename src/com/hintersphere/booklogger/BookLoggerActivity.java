@@ -296,7 +296,10 @@ public class BookLoggerActivity extends Activity {
 					addBookByISBN(scanResult.getContents());
 				} catch (BookNotFoundException e) {
 					// TODO show a separate dialog to allow user to enter manually...
-					e.printStackTrace();
+					Log.e(CLASSNAME, "Could not find the book: ", e);
+
+					// prompt for a re-scan
+					showDialog(DIALOG_RESCAN);
 				}
 				// here we want to ensure the list is refreshed...
 				mListEntriesCursorDirty = true;
