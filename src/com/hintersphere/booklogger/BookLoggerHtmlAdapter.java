@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -19,10 +20,12 @@ public class BookLoggerHtmlAdapter {
 	private static final SimpleDateFormat DATE_FORMAT_PDF = new SimpleDateFormat("MM/dd/yy");
 
 	private Context mCtx;
+	private Set<String> mKeywords;
 
-	public BookLoggerHtmlAdapter(Context ctx) {
+	public BookLoggerHtmlAdapter(Context ctx, Set<String> keywords) {
 		super();
 		mCtx = ctx;
+		mKeywords = keywords;
 	}
 
 	public File makeHtml(String title, String subject, Cursor cursor) {
@@ -78,13 +81,20 @@ public class BookLoggerHtmlAdapter {
 		    writer.append("</tr>");
 		    
 			while (cursor.moveToNext()) {
+				
+				String booktitle = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE));
+				String author = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR));
+				
+				// append some keywords
+				mKeywords.add(booktitle);
+				mKeywords.add(author);
+				
 			    writer.append("<tr style=\"font-size: 12px;\" >\n");
 			    cell(writer, "" + (cursor.getPosition() + 1));
 				cell(writer, formatDate(cursor.getString(cursor
 						.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT))), "center");
-				cell(writer, cursor.getString(cursor
-						.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE)));
-			    cell(writer, cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR)));
+				cell(writer, booktitle);
+			    cell(writer, author);
 				switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
 				case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
 					cell(writer, mCtx.getString(R.string.context_menu_childread));

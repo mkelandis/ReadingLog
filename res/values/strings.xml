@@ -59,4 +59,6 @@
     <string name="pdf_col_activity">Activity</string>
     <string name="pdf_col_initials">Parent Initials</string>
     <string name="pdf_footer_tagline">ReadingLog for Android</string>
+    <string name="admob_keywords">book|read|children\'s books|children|education|school|author|student|homework|summer reading</string>
+    <string name="admob_pubid">a14e9f5100bf3fb</string>
 </resources>

@@ -124,7 +124,16 @@ public class BookListEntryActivity extends Activity {
         populateFields();
     }
     
-    private void saveState() {
+    @Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		if (mDbHelper != null) {
+			mDbHelper.close();
+		}
+	}
+
+	private void saveState() {
     	
     	// don't save if we have canceled the operation (lifecycle concern)
     	/**

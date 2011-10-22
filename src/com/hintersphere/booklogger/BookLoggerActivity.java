@@ -3,6 +3,8 @@ package com.hintersphere.booklogger;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +36,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
+import com.google.ads.AdRequest;
+import com.google.ads.InterstitialAd;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.hintersphere.util.RestHelper;
@@ -48,7 +52,6 @@ import com.hintersphere.util.RestHelper;
  * - delete list
  * - scan book
  * - info/about 
- * TODO::List should scroll to bottom after adding a book
  * TODO::Learn how to invalidate views
  * @author Michael Landis
  */
@@ -68,6 +71,7 @@ public class BookLoggerActivity extends Activity {
     // activity
     private static final int ACTIVITY_EDIT_LIST = 0;
     private static final int ACTIVITY_NEW_ENTRY = 1;
+    private static final int ACTIVITY_SEND_LIST = 2;
     
     // options menu stuff
     private static final int ADDBOOK_ID = Menu.FIRST;
@@ -92,8 +96,10 @@ public class BookLoggerActivity extends Activity {
     // local copy of book log cursor
     private Cursor mListEntriesCursor = null;
     private boolean mListEntriesCursorDirty = true;
+
+    // interstitial ad displayed after a send
+	InterstitialAd mInterstitial = null;
     
-        
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -268,6 +274,7 @@ public class BookLoggerActivity extends Activity {
 		default:
 			dialog = null;
 		}
+				
 		return dialog;
 	}
 	
@@ -295,9 +302,7 @@ public class BookLoggerActivity extends Activity {
 				try {
 					addBookByISBN(scanResult.getContents());
 				} catch (BookNotFoundException e) {
-					// TODO show a separate dialog to allow user to enter manually...
 					Log.e(CLASSNAME, "Could not find the book: ", e);
-
 					// prompt for a re-scan
 					showDialog(DIALOG_RESCAN);
 				}
@@ -307,6 +312,13 @@ public class BookLoggerActivity extends Activity {
 			} else {
 				// prompt for a re-scan
 				showDialog(DIALOG_RESCAN);
+			}
+		} else if (requestCode == ACTIVITY_SEND_LIST) {
+			// show an ad after the list was sent
+			if (mInterstitial != null && mInterstitial.isReady()) {
+				mInterstitial.show();
+			} else if (mInterstitial != null) {
+				mInterstitial.stopLoading();
 			}
 		}
 	}
@@ -335,9 +347,19 @@ public class BookLoggerActivity extends Activity {
     protected void onResume() {
         super.onResume();
         populateState();
-    }
+    }    
     
     @Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		// close the database connection so we don't leave it...
+		if (mDbHelper != null) {
+			mDbHelper.close();
+		}
+	}
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
         menu.add(0, ADDBOOK_ID, 0, R.string.options_menu_addbook);
@@ -357,15 +379,15 @@ public class BookLoggerActivity extends Activity {
             	IntentIntegrator.initiateScan(BookLoggerActivity.this);
                 return true;
             case NEWLIST_ID:
-            	Intent i = new Intent(this, BookListEditActivity.class);
-            	startActivityForResult(i, ACTIVITY_EDIT_LIST);            	
+            	Intent intent = new Intent(this, BookListEditActivity.class);
+            	startActivityForResult(intent, ACTIVITY_EDIT_LIST);            	
             	// ensure the list is pulled again
             	mListEntriesCursorDirty = true;            	
             	return true;
             case EDITLIST_ID:
-                i = new Intent(this, BookListEditActivity.class);
-                i.putExtra(BookLoggerDbAdapter.DB_COL_ID, mListId);
-                startActivityForResult(i, ACTIVITY_EDIT_LIST);
+                intent = new Intent(this, BookListEditActivity.class);
+                intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, mListId);
+                startActivityForResult(intent, ACTIVITY_EDIT_LIST);
             	return true;
             case SWITCHLIST_ID:
             	showDialog(DIALOG_SWITCH_LIST);
@@ -380,24 +402,44 @@ public class BookLoggerActivity extends Activity {
                 	return true;
             	}
             	
+            	// create some keywords
+            	Set<String> keywords = new HashSet<String>();            	
+            	String[] staticKeywords = getString(R.string.admob_keywords).split("\\|");
+            	for (int i=0;i < staticKeywords.length;i++) {
+            		keywords.add(staticKeywords[i]);
+            	}
+            	
             	// create the pdf to send (had to switch to HTML for now)
-            	BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this);
+            	BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this, keywords);
             	String title = (String) getTitle();
             	File outputFile = htmlAdapter.makeHtml(title, title, cursor);            	
-            	Intent intent = new Intent(Intent.ACTION_SEND);
+            	intent = new Intent(Intent.ACTION_SEND);
             	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
             	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext)); 
             	intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + outputFile.getAbsolutePath()));
             	intent.setType("text/html");
-            	startActivity(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)));
+            	
+            	// kick off the ad load before we start the send activity...
+            	String pubId = getString(R.string.admob_pubid);
+            	mInterstitial = new InterstitialAd(this, pubId);
+            	AdRequest adRequest = new AdRequest();
+            	adRequest.setKeywords(keywords);
+            	/**
+            	 * TODO::turn this off...
+            	 */
+//            	adRequest.setTesting(true);
+//            	adRequest.addTestDevice("66AE4425C6895E23FCD3DE8C581FCCD6");
+            	mInterstitial.loadAd(adRequest);
+            	
+            	startActivityForResult(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)), ACTIVITY_SEND_LIST);
             	return true;
             case DELETELIST_ID:
             	showDialog(DIALOG_DELETE_LIST);
             	return true;
             case NEWENTRY_ID:
-                i = new Intent(this, BookListEntryActivity.class);
-                i.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
-                startActivityForResult(i, ACTIVITY_NEW_ENTRY);
+                intent = new Intent(this, BookListEntryActivity.class);
+                intent.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
+                startActivityForResult(intent, ACTIVITY_NEW_ENTRY);
                 mListEntriesCursorDirty = true;
             	return true;
 		}
@@ -536,11 +578,8 @@ public class BookLoggerActivity extends Activity {
 	 * Look up all the data we need from Google Books API and get accelerated reader info from ??? 
 	 * Populate the selected list with the book information.
 	 *  
-	 * TODO::Cannot find book: Mythology Greek Gods, Heroes and Monsters
 	 * TODO::Are we happy to just get the first author in the list?
 	 * TODO::Pull the accelerated reader information from somewhere 
-	 * TODO::Enable multiple activities, allow user to select from radio or turn off the dialog for 
-	 * the list (us ea default activity)
 	 * TODO::Enable AR info (includes wordcount?)
 	 * 
 	 * @param isbn to pull data from

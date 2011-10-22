@@ -111,7 +111,16 @@ public class BookListEditActivity extends Activity {
         populateFields();
     }
     
-    private void saveState() {
+    @Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		if (mDbHelper != null) {
+			mDbHelper.close();
+		}
+	}
+
+	private void saveState() {
     	
     	/**
     	 * TODO::we may need to handle the back button in the same manner
