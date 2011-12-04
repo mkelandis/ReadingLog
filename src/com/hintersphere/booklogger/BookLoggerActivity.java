@@ -112,6 +112,9 @@ public class BookLoggerActivity extends Activity {
         populateLastSelectedList(savedInstanceState);
         
         // populate the list ids for swiping right and left
+        /**
+         * TODO::we're not using the swipe left/right feature anymore, so remove this
+         */
         if (mAllListIds.size() == 0) {
         	populateAllListIds();
         }
