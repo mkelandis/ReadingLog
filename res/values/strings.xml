@@ -61,4 +61,10 @@
     <string name="pdf_footer_tagline">ReadingLog for Android</string>
     <string name="admob_keywords">book|read|children\'s books|children|education|school|author|student|homework|summer reading</string>
     <string name="admob_pubid">a14e9f5100bf3fb</string>
+    <string name="detail_section_header_activity">Read By</string>        
+    <string name="detail_section_header_date">Read On Date</string>        
+    <string name="detail_section_header_chapters">Chapters</string>        
+    <string name="detail_section_header_pages">Pages</string>        
+    <string name="detail_section_header_comments">Comments</string>        
+    
 </resources>

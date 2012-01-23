@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:paddingLeft="8dp"
+	android:paddingRight="8dp">
+
+	<TextView android:id="@+id/title"
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:textStyle="bold" />
+
+	<TextView android:id="@+id/author"
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+	<ExpandableListView android:id="@id/android:list"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:background="#00FF00" android:layout_weight="1"
+		android:drawSelectorOnTop="false" />
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal" android:layout_height="wrap_content"
+		android:baselineAligned="true" android:layout_width="fill_parent"
+		android:layout_marginLeft="@dimen/left_indent"
+		android:layout_marginRight="@dimen/left_indent">
+
+		<Button android:id="@+id/back" android:text="@string/manual_entry_save"
+			android:layout_width="150px" android:layout_height="wrap_content" />
+
+	</LinearLayout>
+
+
+</LinearLayout>
+
+

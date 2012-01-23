@@ -60,7 +60,7 @@ public class BookLoggerActivity extends Activity {
 	private static final String CLASSNAME = BookLoggerActivity.class.getName();
 	private static final String GOOGLE_BOOKS_ISBN_LOOKUP = "https://www.googleapis.com/books/v1/volumes?q=isbn:";
 
-	// dialogs
+	// dialogs - TODO::Switch these to enums!
 	private static final int DIALOG_FIRST_TIME = 0;
 	private static final int DIALOG_RESCAN = 1;
 	private static final int DIALOG_REMOVE_BOOK = 2;

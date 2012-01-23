@@ -9,14 +9,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
 
+import com.hintersphere.util.BaseDbAdapter;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Environment;
 
 public class BookLoggerHtmlAdapter {
 
-	private static final SimpleDateFormat DATE_FORMAT_SQL = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
 	private static final SimpleDateFormat DATE_FORMAT_PDF = new SimpleDateFormat("MM/dd/yy");
 
 	private Context mCtx;
@@ -142,14 +142,11 @@ public class BookLoggerHtmlAdapter {
 		writer.append(contents);
 		writer.append("</d>");
 	}
-	private String formatDate(String date) {
-		Date origDate = null;
-		try {
-			origDate = DATE_FORMAT_SQL.parse(date);
-		} catch (Exception e) {
-			throw new BookLoggerException("Could not parse create date from db", e);
-		}
-		return DATE_FORMAT_PDF.format(origDate);
+	
+	public String formatDate(String dbDateStr) {
+		return DATE_FORMAT_PDF.format(BaseDbAdapter.toDate(dbDateStr));
 	}
+	
+
 
 }

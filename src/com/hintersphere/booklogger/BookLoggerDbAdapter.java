@@ -1,5 +1,8 @@
 package com.hintersphere.booklogger;
 
+import java.util.Date;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,16 +11,25 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.hintersphere.util.BaseDbAdapter;
+import com.hintersphere.util.StringUtils;
+
 /**
  * @author Michael V Landis
  */
-public class BookLoggerDbAdapter {
+public class BookLoggerDbAdapter extends BaseDbAdapter {
 
 	/**
      * CLASSNAME used for logging
      */
     private static final String CLASSNAME = BookLoggerDbAdapter.class.getName();
 	
+    /**
+     * DB Tables...
+     */
+    public static final String DB_TAB_BOOKLIST = "booklist";
+    public static final String DB_TAB_LISTENTRY = "listentry";
+    
     /**
      * DB Columns...
      */
@@ -34,7 +46,13 @@ public class BookLoggerDbAdapter {
     public static final String DB_COL_ARPOINTS = "arpoints"; // accelerated reader points
     public static final String DB_COL_WORDCOUNT = "wordcount"; // wordcount
     public static final String DB_COL_CREATEDT = "createdt"; // timestamp create date
-
+    public static final String DB_COL_CHAPTERBEG = "chapterbeg"; // chapter begin
+    public static final String DB_COL_CHAPTEREND = "chapterend"; // chapter end
+    public static final String DB_COL_PAGESBEG = "pagesbeg"; // pages begin
+    public static final String DB_COL_PAGESEND = "pagesend"; // pages end
+    public static final String DB_COL_COMMENTS = "comments"; // comments
+    public static final String DB_COL_DATEREAD = "dateRead"; // comments
+    
     /**
      * Activities (what did we do with this book?
      */
@@ -49,32 +67,41 @@ public class BookLoggerDbAdapter {
 	 * activity lookup - child read, parent read, child+parent, etc...
 	 */
     private static final String DATABASE_NAME = "bookloggerdb";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 	private static final String DB_CREATE_BOOKLIST =
-			"create table booklist ("
-			+ "_id integer primary key autoincrement, "
-			+ "name text not null, "
-			+ "priority integer not null);";
-	private static final String DB_CREATE_LISTENTRY = "create table listentry ("
-			+ "_id integer primary key autoincrement, "
-			+ "listid integer not null, "
-			+ "title text not null, "
-			+ "author text not null, " 
-			+ "thumb text not null, " 
-			+ "isbn text not null, " 
-			+ "activity integer not null, "
-			+ "arlevel integer null, "
-			+ "arpoints integer null, "
-			+ "wordcount integer null, "
-			+ "createdt text not null DEFAULT CURRENT_TIMESTAMP);";
+			"create table if not exists " + DB_TAB_BOOKLIST + " ("
+			+ DB_COL_ID + " integer primary key autoincrement, "
+			+ DB_COL_NAME + " text not null, "
+			+ DB_COL_PRIORITY + " integer not null);";
+	private static final String DB_CREATE_LISTENTRY = 
+			"create table if not exists " + DB_TAB_LISTENTRY + " ("
+			+ DB_COL_ID + " integer primary key autoincrement, "
+			+ DB_COL_LISTID + " integer not null, "
+			+ DB_COL_TITLE + " text not null, "
+			+ DB_COL_AUTHOR + " text not null, " 
+			+ DB_COL_THUMB + " text not null, " 
+			+ DB_COL_ISBN + " text not null, " 
+			+ DB_COL_ACTIVITY + " integer not null, "
+			+ DB_COL_ARLEVEL + " integer null, "
+			+ DB_COL_ARPOINTS + " integer null, "
+			+ DB_COL_WORDCOUNT + " integer null, "
+			+ DB_COL_CHAPTERBEG + " integer null, "
+			+ DB_COL_CHAPTEREND + " integer null, "
+			+ DB_COL_PAGESBEG + " integer null, "
+			+ DB_COL_PAGESEND + " integer null, "
+			+ DB_COL_COMMENTS + " text null, "
+			+ DB_COL_DATEREAD + " text not null DEFAULT CURRENT_TIMESTAMP, "
+			+ DB_COL_CREATEDT + " text not null DEFAULT CURRENT_TIMESTAMP);";
 
-	private static final String DB_WHERE_LISTENTRIES = "listid = ?";
-	private static final String DB_WHERE_LISTENTRY = "_id = ?";
-	private static final String DB_WHERE_LASTBOOKLIST = "priority = (SELECT MAX(priority) FROM booklist)";
+	private static final String DB_WHERE_LISTENTRIES = DB_COL_LISTID + " = ?";
+	private static final String DB_WHERE_LISTENTRY = DB_COL_ID + "  = ?";
+	private static final String DB_WHERE_LASTBOOKLIST = DB_COL_PRIORITY + " = (SELECT MAX("
+			+ DB_COL_PRIORITY + ") FROM " + DB_TAB_BOOKLIST + ")";
 	private static final String DB_WHERE_BOOKLIST = "_id = ?";
 	
-	private static final String DB_UPDATE_PRIORITY = "UPDATE booklist SET priority = "
-		+ "((SELECT MAX(priority) from booklist) + 1) WHERE _id=";
+	private static final String DB_UPDATE_PRIORITY = "UPDATE " + DB_TAB_BOOKLIST + " SET "
+			+ DB_COL_PRIORITY + " = " + "((SELECT MAX(" + DB_COL_PRIORITY + ") from "
+			+ DB_TAB_BOOKLIST + ") + 1) WHERE " + DB_COL_ID + "=";
 	private static final int DEF_PRIORITY = 0;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -85,22 +112,81 @@ public class BookLoggerDbAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
+			db.beginTransaction();
 			try {
 				db.execSQL(DB_CREATE_BOOKLIST);
 				db.execSQL(DB_CREATE_LISTENTRY);
+				db.setTransactionSuccessful();
 			} catch (Exception e) {
-				e.printStackTrace();
+				Log.e(CLASSNAME, "Exception creating db tables", e);
+				throw new BookLoggerException("Exception creating db tables", e);
+			} finally {
+				db.endTransaction();				
 			}
 		}
 
+        /** (non-Javadoc)
+         * strategy for upgrading live database appropriated from here:
+         * http://stackoverflow.com/questions/3505900/sqliteopenhelper-onupgrade-confusion-android
+         * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(CLASSNAME, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS booklist");
-            db.execSQL("DROP TABLE IF EXISTS listentry");
-            onCreate(db);
-        }
+			db.beginTransaction();
+			try {
+				/**
+				 * run a table creation with "if not exists" (we are doing an upgrade, so the table 
+				 * might not exist yet, it will then fail alter and drop)
+				 * this should normally fail on an upgrade unless a table is new
+				 */
+				db.execSQL(DB_CREATE_BOOKLIST);
+				db.execSQL(DB_CREATE_LISTENTRY);
+
+				// get the column names from the tables
+				List<String> colsBooklist = BaseDbAdapter.getColumnsAsList(db, DB_TAB_BOOKLIST);
+				List<String> colsListEntry = BaseDbAdapter.getColumnsAsList(db, DB_TAB_LISTENTRY);
+				
+				// back up the tables
+				db.execSQL("ALTER table " + DB_TAB_BOOKLIST + " RENAME TO 'temp_" + DB_TAB_BOOKLIST);
+				db.execSQL("ALTER table " + DB_TAB_LISTENTRY + " RENAME TO 'temp_" + DB_TAB_LISTENTRY);
+
+				// now create the tables again for real... 
+				db.execSQL(DB_CREATE_BOOKLIST);
+				db.execSQL(DB_CREATE_LISTENTRY);
+
+				// get the intersection of the columns
+				colsBooklist.retainAll(BaseDbAdapter.getColumnsAsList(db, DB_TAB_BOOKLIST));
+				colsListEntry.retainAll(BaseDbAdapter.getColumnsAsList(db, DB_TAB_LISTENTRY));
+								
+				// restore data from backup
+				String cols = StringUtils.join(colsBooklist, ",");
+				db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from temp_%s",
+						DB_TAB_BOOKLIST, cols, cols, DB_TAB_BOOKLIST));
+								
+				// do something special with date read - if new pull from create date
+				cols = StringUtils.join(colsListEntry, ",");
+				String fromCols = new String(cols);
+				if (!colsListEntry.contains(DB_COL_DATEREAD)) {
+					cols.concat(", " + DB_COL_DATEREAD);
+					fromCols.concat(", " + DB_COL_CREATEDT);
+				}				
+				db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from temp_%s",
+						DB_TAB_LISTENTRY, cols, fromCols, DB_TAB_LISTENTRY));
+				
+				// drop the temp tables
+				db.execSQL("DROP table 'temp_" + DB_TAB_BOOKLIST);
+				db.execSQL("DROP table 'temp_" + DB_TAB_LISTENTRY);
+				
+				db.setTransactionSuccessful();
+			} catch (Exception e) {
+				Log.e(CLASSNAME, "Exception upgrading db tables", e);
+				throw new BookLoggerException("Exception upgrading db tables", e);
+			} finally {
+				db.endTransaction();
+			}
+		}
     }
     
     private DatabaseHelper mDbHelper;
@@ -140,9 +226,9 @@ public class BookLoggerDbAdapter {
      */
     public long createBookList(String name) {
         ContentValues initialValues = new ContentValues();
-        initialValues.put("name", name);
-        initialValues.put("priority", DEF_PRIORITY);
-        return mDb.insert("booklist", null, initialValues);
+        initialValues.put(DB_COL_NAME, name);
+        initialValues.put(DB_COL_PRIORITY, DEF_PRIORITY);
+        return mDb.insert(DB_TAB_BOOKLIST, null, initialValues);
     }
 
     /**
@@ -152,7 +238,7 @@ public class BookLoggerDbAdapter {
      * @return true if deleted, false otherwise
      */
     public boolean deleteBookList(long rowId) {
-        return mDb.delete("booklist", "_id" + "=" + rowId, null) > 0;
+        return mDb.delete(DB_TAB_BOOKLIST, DB_COL_ID + "=" + rowId, null) > 0;
     }
     
     /**
@@ -160,12 +246,12 @@ public class BookLoggerDbAdapter {
      * @return Cursor over all booklists
      */
 	public Cursor fetchAllBookLists() {
-		return mDb.query("booklist", new String[] { DB_COL_ID, DB_COL_NAME }, null, null, null,
+		return mDb.query(DB_TAB_BOOKLIST, new String[] { DB_COL_ID, DB_COL_NAME }, null, null, null,
 				null, null);
 	}
 
 	public Cursor fetchLastBookList() {
-		return mDb.query("booklist", new String[] { DB_COL_ID, DB_COL_NAME },
+		return mDb.query(DB_TAB_BOOKLIST, new String[] { DB_COL_ID, DB_COL_NAME },
 				DB_WHERE_LASTBOOKLIST, null, null, null, null);
 	}
     
@@ -173,7 +259,7 @@ public class BookLoggerDbAdapter {
 
 		Cursor cursor = null;
 		try {
-			cursor = mDb.query("booklist", new String[] { DB_COL_ID, DB_COL_NAME },
+			cursor = mDb.query(DB_TAB_BOOKLIST, new String[] { DB_COL_ID, DB_COL_NAME },
 					DB_WHERE_BOOKLIST, new String[] { String.valueOf(rowid) }, null, null, null);
 		} catch (Exception e) {
 			Log.e(CLASSNAME, "Error fetching booklist for id = " + rowid, e);
@@ -194,7 +280,7 @@ public class BookLoggerDbAdapter {
     public boolean updateBookList(long rowId, String name) {
         ContentValues args = new ContentValues();
         args.put("name", name);
-        return mDb.update("booklist", args, "_id" + "=" + rowId, null) > 0;
+        return mDb.update(DB_TAB_BOOKLIST, args, DB_COL_ID + "=" + rowId, null) > 0;
     }
     
     
@@ -228,23 +314,22 @@ public class BookLoggerDbAdapter {
 			short activity, int arlevel, int arpoints, int wordcount) {
 		
 		ContentValues initialValues = new ContentValues();
-		initialValues.put("listid", listid);
-		initialValues.put("title", title);
-		initialValues.put("author", author);
-		initialValues.put("thumb", thumb);
-		initialValues.put("isbn", isbn);
-		initialValues.put("activity", activity);
-		initialValues.put("arlevel", (arlevel == -1 ? null : arlevel));
-		initialValues.put("arpoints", (arpoints == -1 ? null : arpoints));
-		initialValues.put("wordcount", (wordcount == -1 ? null : wordcount));
+		initialValues.put(DB_COL_LISTID, listid);
+		initialValues.put(DB_COL_TITLE, title);
+		initialValues.put(DB_COL_AUTHOR, author);
+		initialValues.put(DB_COL_THUMB, thumb);
+		initialValues.put(DB_COL_ISBN, isbn);
+		initialValues.put(DB_COL_ACTIVITY, activity);
+		initialValues.put(DB_COL_ARLEVEL, (arlevel == -1 ? null : arlevel));
+		initialValues.put(DB_COL_ARPOINTS, (arpoints == -1 ? null : arpoints));
+		initialValues.put(DB_COL_WORDCOUNT, (wordcount == -1 ? null : wordcount));
 		
 		long id = 0;
 		try {
-			id = mDb.insert("listentry", null, initialValues);
+			id = mDb.insert(DB_TAB_LISTENTRY, null, initialValues);
     	} catch (Exception e) {
     		Log.e(CLASSNAME, "Error creating list entry.", e);
     	}
-
 		
 		return id;
 	}
@@ -260,7 +345,7 @@ public class BookLoggerDbAdapter {
     public boolean updateActivity(long rowId, short activity) {
         ContentValues args = new ContentValues();
         args.put(DB_COL_ACTIVITY, activity);
-        return mDb.update("listentry", args, DB_COL_ID + "=" + rowId, null) > 0;
+        return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
     }
 	
     /**
@@ -274,7 +359,36 @@ public class BookLoggerDbAdapter {
         ContentValues args = new ContentValues();
         args.put(DB_COL_TITLE, title);
         args.put(DB_COL_AUTHOR, author);
-        return mDb.update("listentry", args, DB_COL_ID + "=" + rowId, null) > 0;
+        return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
+    }
+
+    /**
+     * Update the book detail in a book log entry
+     * @param rowId to be updated
+     * @param title to be updated to
+     * @param author to be updated to
+	 * @param activity indicates who did the reading (child, parent, both)
+	 * @param chapterBegin optional information about the starting chapter
+	 * @param chapterEnd optional information about the ending chapter
+	 * @param pagesBegin optional information about the beginning page
+	 * @param pagesEnd optional information about the ending page
+	 * @param dateRead date that the book was read on
+	 * @param comments optional comments to be stored with the book entry
+     * @return true or false if the update failed.
+     */
+	public boolean updateEntry(long rowId, String title, String author, short activity,
+			String chapterBegin, String chapterEnd, String pagesBegin, String pagesEnd, Date dateRead,
+			String comments) {
+        ContentValues args = new ContentValues();
+        args.put(DB_COL_TITLE, title);
+        args.put(DB_COL_AUTHOR, author);
+        args.put(DB_COL_ACTIVITY, activity);
+        args.put(DB_COL_CHAPTERBEG, chapterBegin);
+        args.put(DB_COL_CHAPTEREND, chapterEnd);
+        args.put(DB_COL_PAGESBEG, pagesEnd);
+        args.put(DB_COL_DATEREAD, BaseDbAdapter.fromDate(dateRead));
+        args.put(DB_COL_COMMENTS, comments);
+        return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
     }
 
     /**
@@ -284,7 +398,7 @@ public class BookLoggerDbAdapter {
      * @return true if deleted, false otherwise
      */
     public boolean deleteListEntry(long rowId) {
-        return mDb.delete("listentry", "_id" + "=" + rowId, null) > 0;
+        return mDb.delete(DB_TAB_LISTENTRY, DB_COL_ID + "=" + rowId, null) > 0;
     }
 
     
@@ -297,10 +411,10 @@ public class BookLoggerDbAdapter {
     public boolean deleteList(long rowId) {
     	
     	// first delete the entries (checking return val messes up - legit not to have rows)
-        mDb.delete("listentry", "listid" + "=" + rowId, null);
+        mDb.delete(DB_TAB_LISTENTRY, DB_COL_LISTID + "=" + rowId, null);
         
         // then delete the list
-        return mDb.delete("booklist", "_id" + "=" + rowId, null) > 0;
+        return mDb.delete(DB_TAB_BOOKLIST, DB_COL_ID + "=" + rowId, null) > 0;
     }
     
     /**
@@ -314,7 +428,7 @@ public class BookLoggerDbAdapter {
     public Cursor fetchListEntries(long listid) {    	
     	Cursor cursor = null;
     	try {
-			cursor = mDb.query("listentry", new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR,
+			cursor = mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR,
 					DB_COL_THUMB, DB_COL_ACTIVITY, DB_COL_CREATEDT }, DB_WHERE_LISTENTRIES, new String[] { String
 					.valueOf(listid) }, null, null, null);
     	} catch (Exception e) {
@@ -332,13 +446,16 @@ public class BookLoggerDbAdapter {
      */
     public Cursor fetchListEntry(long listEntryId) {
     	Cursor cursor = null;
-    	try {
-			cursor = mDb.query("listentry", new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR,
-					DB_COL_THUMB, DB_COL_ACTIVITY, DB_COL_CREATEDT }, DB_WHERE_LISTENTRY, new String[] { String
-					.valueOf(listEntryId) }, null, null, null);
-    	} catch (Exception e) {
+		try {
+			cursor = mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE,
+					DB_COL_AUTHOR, DB_COL_THUMB, DB_COL_ACTIVITY, DB_COL_CREATEDT,
+					DB_COL_CHAPTERBEG, DB_COL_CHAPTEREND, DB_COL_PAGESBEG, DB_COL_PAGESEND,
+					DB_COL_DATEREAD, DB_COL_COMMENTS }, DB_WHERE_LISTENTRY, 
+					new String[] { String.valueOf(listEntryId) }, null, null, null);
+		} catch (Exception e) {
     		Log.e(CLASSNAME, "Error fetching list entries by id", e);
-    	}
+    		throw new BookLoggerException("Error fetching list entries by id", e);
+		}
     	
     	return cursor;    	
     }
