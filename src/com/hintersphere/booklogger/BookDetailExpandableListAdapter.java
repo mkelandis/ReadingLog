@@ -114,6 +114,7 @@ public class BookDetailExpandableListAdapter extends BaseExpandableListAdapter {
 	
 	/**
 	 * no-args constructor not used
+	 * ...seems slightly weird...
 	 */
 	@SuppressWarnings("unused")
 	private BookDetailExpandableListAdapter() {
