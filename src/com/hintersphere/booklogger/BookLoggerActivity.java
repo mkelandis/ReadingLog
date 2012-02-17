@@ -30,11 +30,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 
 import com.google.ads.AdRequest;
 import com.google.ads.InterstitialAd;
@@ -61,26 +63,29 @@ public class BookLoggerActivity extends Activity {
 	private static final String GOOGLE_BOOKS_ISBN_LOOKUP = "https://www.googleapis.com/books/v1/volumes?q=isbn:";
 
 	// dialogs - TODO::Switch these to enums!
-	private static final int DIALOG_FIRST_TIME = 0;
-	private static final int DIALOG_RESCAN = 1;
-	private static final int DIALOG_REMOVE_BOOK = 2;
-	private static final int DIALOG_SWITCH_LIST = 3;
-	private static final int DIALOG_LIST_EMPTY = 4;
-	private static final int DIALOG_DELETE_LIST = 5;
+	private enum MDialog {FIRST_TIME, RESCAN, REMOVE_BOOK, SWITCH_LIST, LIST_EMPTY, DELETE_LIST}
 	
     // activity
-    private static final int ACTIVITY_EDIT_LIST = 0;
-    private static final int ACTIVITY_NEW_ENTRY = 1;
-    private static final int ACTIVITY_SEND_LIST = 2;
-    
+	private enum MActivity {EDIT_LIST, NEW_ENTRY, SEND_LIST, BOOK_DETAIL}
+	    
     // options menu stuff
-    private static final int ADDBOOK_ID = Menu.FIRST;
-    private static final int NEWLIST_ID = Menu.FIRST + 1;    
-    private static final int EDITLIST_ID = Menu.FIRST + 2;    
-    private static final int SWITCHLIST_ID = Menu.FIRST + 3;    
-    private static final int SENDLIST_ID = Menu.FIRST + 4;    
-    private static final int DELETELIST_ID = Menu.FIRST + 5;    
-    private static final int NEWENTRY_ID = Menu.FIRST + 6;    
+	private enum MMenu {		
+		ADDBOOK(Menu.FIRST), NEWLIST(Menu.FIRST + 1), EDITLIST(Menu.FIRST + 2), 
+		SWITCHLIST(Menu.FIRST + 3), SENDLIST(Menu.FIRST + 4), DELETELIST(Menu.FIRST + 5), 
+		NEWENTRY(Menu.FIRST + 6);
+		final int id;
+		MMenu(int id) {
+			this.id = id;
+		}		
+	}
+	private MMenu getMenu(int id) {
+		for (MMenu menu : MMenu.values()) {
+			if (menu.id == id) {
+				return menu;
+			}
+		}
+		return null;
+	}
 
     private BookLoggerDbAdapter mDbHelper;
 
@@ -125,7 +130,7 @@ public class BookLoggerActivity extends Activity {
         // handle first timers (create a default list and prompt for a scan)
         doFirstTimeUser(); 
         
-        registerForContextMenu(getListView());
+        registerForContextMenu(getListView());        
         
         //  handle add button
 		Button addButton = (Button) findViewById(R.id.add_book);
@@ -142,8 +147,8 @@ public class BookLoggerActivity extends Activity {
 		final Context ctx = this;
 		Dialog dialog;
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		switch (id) {
-		case DIALOG_FIRST_TIME:
+		switch (MDialog.values()[id]) {
+		case FIRST_TIME:
 			builder.setTitle(R.string.dialog_firstTime_title)
 				   .setMessage(R.string.dialog_firstTime_instructions)
 			       .setCancelable(false)
@@ -154,7 +159,7 @@ public class BookLoggerActivity extends Activity {
 			       });
 			dialog = builder.create();			
 			break;
-		case DIALOG_RESCAN:
+		case RESCAN:
 			builder.setTitle(R.string.dialog_rescan_title)
 				   .setMessage(R.string.dialog_rescan_instructions)
 			       .setCancelable(true)
@@ -167,13 +172,13 @@ public class BookLoggerActivity extends Activity {
 			    	   public void onClick(DialogInterface dialog, int id) {
 			    		   Intent i = new Intent(ctx, BookListEntryActivity.class);
 			    		   i.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
-			    		   startActivityForResult(i, ACTIVITY_NEW_ENTRY);
+			    		   startActivityForResult(i, MActivity.NEW_ENTRY.ordinal());
 			    		   mListEntriesCursorDirty = true;
 			    	   }
 			       });
 			dialog = builder.create();			
 			break;
-		case DIALOG_LIST_EMPTY:
+		case LIST_EMPTY:
 			builder.setTitle(R.string.dialog_list_empty)
 				   .setMessage(R.string.dialog_list_empty_instructions)
 			       .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
@@ -183,7 +188,7 @@ public class BookLoggerActivity extends Activity {
 			       });
 			dialog = builder.create();			
 			break;
-		case DIALOG_REMOVE_BOOK:
+		case REMOVE_BOOK:
 			builder.setTitle(R.string.dialog_removebook_title)
 				   .setMessage(R.string.dialog_removebook_instructions)
 			       .setCancelable(true)
@@ -206,7 +211,7 @@ public class BookLoggerActivity extends Activity {
 					});
 			dialog = builder.create();			
 			break;
-		case DIALOG_DELETE_LIST:
+		case DELETE_LIST:
 			builder.setTitle(R.string.dialog_removelist_title)
 				   .setMessage(R.string.dialog_removelist_instructions)
 			       .setCancelable(true)
@@ -232,7 +237,7 @@ public class BookLoggerActivity extends Activity {
 					});
 			dialog = builder.create();			
 			break;
-		case DIALOG_SWITCH_LIST:
+		case SWITCH_LIST:
 			builder.setTitle(R.string.dialog_switchlist_instructions);
 
 			/**
@@ -288,12 +293,12 @@ public class BookLoggerActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		
 		// handle the edit activity result
-		if (requestCode == ACTIVITY_EDIT_LIST) {
+		if (requestCode == MActivity.EDIT_LIST.ordinal()) {
 	        super.onActivityResult(requestCode, resultCode, intent);
 	        populateState();
 	        populateAllListIds(); // we may have added one
 			populateBooks();
-		} else if (requestCode == ACTIVITY_NEW_ENTRY) {
+		} else if (requestCode == MActivity.NEW_ENTRY.ordinal()) {
 	        super.onActivityResult(requestCode, resultCode, intent);
 			populateBooks();
 		} else if (requestCode == IntentIntegrator.REQUEST_CODE && resultCode != 0) {
@@ -307,16 +312,16 @@ public class BookLoggerActivity extends Activity {
 				} catch (BookNotFoundException e) {
 					Log.e(CLASSNAME, "Could not find the book: ", e);
 					// prompt for a re-scan
-					showDialog(DIALOG_RESCAN);
+					showDialog(MDialog.RESCAN.ordinal());
 				}
 				// here we want to ensure the list is refreshed...
 				mListEntriesCursorDirty = true;
 				populateBooks();
 			} else {
 				// prompt for a re-scan
-				showDialog(DIALOG_RESCAN);
+				showDialog(MDialog.RESCAN.ordinal());
 			}
-		} else if (requestCode == ACTIVITY_SEND_LIST) {
+		} else if (requestCode == MActivity.SEND_LIST.ordinal()) {
 			// show an ad after the list was sent
 			if (mInterstitial != null && mInterstitial.isReady()) {
 				mInterstitial.show();
@@ -361,94 +366,99 @@ public class BookLoggerActivity extends Activity {
 			mDbHelper.close();
 		}
 	}
-
+    
+    
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
-        menu.add(0, ADDBOOK_ID, 0, R.string.options_menu_addbook);
-        menu.add(0, NEWENTRY_ID, 0, R.string.options_menu_newentry);
-        menu.add(0, SENDLIST_ID, 0, R.string.options_menu_sendlist);
-        menu.add(0, SWITCHLIST_ID, 0, R.string.options_menu_switchlist);
-        menu.add(0, NEWLIST_ID, 0, R.string.options_menu_newlist);
-        menu.add(0, EDITLIST_ID, 0, R.string.options_menu_editlist);
-        menu.add(0, DELETELIST_ID, 0, R.string.options_menu_deletelist);
+        menu.add(0, MMenu.ADDBOOK.id, 0, R.string.options_menu_addbook);
+        menu.add(0, MMenu.NEWENTRY.id, 0, R.string.options_menu_newentry);
+        menu.add(0, MMenu.SENDLIST.id, 0, R.string.options_menu_sendlist);
+        menu.add(0, MMenu.SWITCHLIST.id, 0, R.string.options_menu_switchlist);
+        menu.add(0, MMenu.NEWLIST.id, 0, R.string.options_menu_newlist);
+        menu.add(0, MMenu.EDITLIST.id, 0, R.string.options_menu_editlist);
+        menu.add(0, MMenu.DELETELIST.id, 0, R.string.options_menu_deletelist);
         return true;
     }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        switch(item.getItemId()) {
-            case ADDBOOK_ID:
-            	IntentIntegrator.initiateScan(BookLoggerActivity.this);
-                return true;
-            case NEWLIST_ID:
-            	Intent intent = new Intent(this, BookListEditActivity.class);
-            	startActivityForResult(intent, ACTIVITY_EDIT_LIST);            	
-            	// ensure the list is pulled again
-            	mListEntriesCursorDirty = true;            	
-            	return true;
-            case EDITLIST_ID:
-                intent = new Intent(this, BookListEditActivity.class);
-                intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, mListId);
-                startActivityForResult(intent, ACTIVITY_EDIT_LIST);
-            	return true;
-            case SWITCHLIST_ID:
-            	showDialog(DIALOG_SWITCH_LIST);
-            	return true;
-            case SENDLIST_ID:            	
-            	// need a cursor to make a pdf
-            	Cursor cursor = getListEntriesCursor();
-            	
-            	// test cursor to ensure that there is at least one record
-            	if (cursor.getCount() <= 0) {
-                	showDialog(DIALOG_LIST_EMPTY);
-                	return true;
-            	}
-            	
-            	// create some keywords
-            	Set<String> keywords = new HashSet<String>();            	
-            	String[] staticKeywords = getString(R.string.admob_keywords).split("\\|");
-            	for (int i=0;i < staticKeywords.length;i++) {
-            		keywords.add(staticKeywords[i]);
-            	}
-            	
-            	// create the pdf to send (had to switch to HTML for now)
-            	BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this, keywords);
-            	String title = (String) getTitle();
-            	File outputFile = htmlAdapter.makeHtml(title, title, cursor);            	
-            	intent = new Intent(Intent.ACTION_SEND);
-            	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
-            	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext)); 
-            	intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + outputFile.getAbsolutePath()));
-            	intent.setType("text/html");
-            	
-            	// kick off the ad load before we start the send activity...
-            	String pubId = getString(R.string.admob_pubid);
-            	mInterstitial = new InterstitialAd(this, pubId);
-            	AdRequest adRequest = new AdRequest();
-            	adRequest.setKeywords(keywords);
-            	/**
-            	 * TODO::turn this off...
-            	 */
-//            	adRequest.setTesting(true);
-//            	adRequest.addTestDevice("66AE4425C6895E23FCD3DE8C581FCCD6");
-            	mInterstitial.loadAd(adRequest);
-            	
-            	startActivityForResult(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)), ACTIVITY_SEND_LIST);
-            	return true;
-            case DELETELIST_ID:
-            	showDialog(DIALOG_DELETE_LIST);
-            	return true;
-            case NEWENTRY_ID:
-                intent = new Intent(this, BookListEntryActivity.class);
-                intent.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
-                startActivityForResult(intent, ACTIVITY_NEW_ENTRY);
-                mListEntriesCursorDirty = true;
-            	return true;
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (getMenu(item.getItemId())) {
+		case ADDBOOK:
+			IntentIntegrator.initiateScan(BookLoggerActivity.this);
+			return true;
+		case NEWLIST:
+			Intent intent = new Intent(this, BookListEditActivity.class);
+			startActivityForResult(intent, MActivity.EDIT_LIST.ordinal());
+			// ensure the list is pulled again
+			mListEntriesCursorDirty = true;
+			return true;
+		case EDITLIST:
+			intent = new Intent(this, BookListEditActivity.class);
+			intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, mListId);
+			startActivityForResult(intent, MActivity.EDIT_LIST.ordinal());
+			return true;
+		case SWITCHLIST:
+			showDialog(MDialog.SWITCH_LIST.ordinal());
+			return true;
+		case SENDLIST:
+			// need a cursor to make a pdf
+			Cursor cursor = getListEntriesCursor();
+
+			// test cursor to ensure that there is at least one record
+			if (cursor.getCount() <= 0) {
+				showDialog(MDialog.LIST_EMPTY.ordinal());
+				return true;
+			}
+
+			// create some keywords
+			Set<String> keywords = new HashSet<String>();
+			String[] staticKeywords = getString(R.string.admob_keywords).split("\\|");
+			for (int i = 0; i < staticKeywords.length; i++) {
+				keywords.add(staticKeywords[i]);
+			}
+
+			// create the pdf to send (had to switch to HTML for now)
+			BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this, keywords);
+			String title = (String) getTitle();
+			File outputFile = htmlAdapter.makeHtml(title, title, cursor);
+			intent = new Intent(Intent.ACTION_SEND);
+			intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
+			intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext));
+			intent.putExtra(Intent.EXTRA_STREAM, Uri
+					.parse("file://" + outputFile.getAbsolutePath()));
+			intent.setType("text/html");
+
+			// kick off the ad load before we start the send activity...
+			String pubId = getString(R.string.admob_pubid);
+			mInterstitial = new InterstitialAd(this, pubId);
+			AdRequest adRequest = new AdRequest();
+			adRequest.setKeywords(keywords);
+			/**
+			 * TODO::turn this off...
+			 */
+			// adRequest.setTesting(true);
+			// adRequest.addTestDevice("66AE4425C6895E23FCD3DE8C581FCCD6");
+			mInterstitial.loadAd(adRequest);
+
+			startActivityForResult(Intent.createChooser(intent,
+					getString(R.string.pdf_eml_intenttitle)), MActivity.SEND_LIST.ordinal());
+			return true;
+		case DELETELIST:
+			showDialog(MDialog.DELETE_LIST.ordinal());
+			return true;
+		case NEWENTRY:
+			intent = new Intent(this, BookListEntryActivity.class);
+			intent.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
+			startActivityForResult(intent, MActivity.NEW_ENTRY.ordinal());
+			mListEntriesCursorDirty = true;
+			return true;
 		}
 
-        return super.onMenuItemSelected(featureId, item);
-    }
+		return super.onMenuItemSelected(featureId, item);
+	}    
+    
+    
     
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -496,17 +506,24 @@ public class BookLoggerActivity extends Activity {
 			// persist the id in a member variable - we'll pull it out when the
 			// dialog is handled.
 			mRemoveBookId = info.id;
-			showDialog(DIALOG_REMOVE_BOOK);
+			showDialog(MDialog.REMOVE_BOOK.ordinal());
 			return true;
 		default:
 			return super.onContextItemSelected(item);
 		}
 	}
 
-
-	
 	private View getListView() {
-		return (ListView) findViewById(R.id.mainlist);
+		ListView listView = (ListView) findViewById(R.id.mainlist);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(parent.getContext(), BookDetailActivity.class);
+                intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, Long.valueOf(id));
+                startActivityForResult(intent, MActivity.BOOK_DETAIL.ordinal());
+			}
+			});
+		return listView;
 	}	
 
 	private ListAdapter getListAdapter() {
@@ -554,7 +571,7 @@ public class BookLoggerActivity extends Activity {
     		mListName = this.getString(R.string.default_list_name);
     		mListId = Long.valueOf(mDbHelper.createBookList(mListName));		
     		// prompt for a first time scan
-    		showDialog(DIALOG_FIRST_TIME);
+    		showDialog(MDialog.FIRST_TIME.ordinal());
     	}
     }
     
