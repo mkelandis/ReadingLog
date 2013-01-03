@@ -7,14 +7,14 @@
 	<TextView android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:text="@string/manual_entry_title"/>
 
-	<EditText android:id="@+id/entry_title"
+	<EditText android:inputType="textCapWords" android:id="@+id/entry_title"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:layout_weight="1" android:scrollbars="vertical" />
 
 	<TextView android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:text="@string/manual_entry_author"/>
 
-	<EditText android:id="@+id/entry_author"
+	<EditText android:inputType="textCapWords" android:id="@+id/entry_author"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:layout_weight="1" android:scrollbars="vertical" />
 
@@ -23,10 +23,10 @@
 		android:layout_height="wrap_content">
 
 		<Button android:id="@+id/save" android:text="@string/manual_entry_save"
-			android:layout_width="150px" android:layout_height="wrap_content" />
+			android:layout_width="150sp" android:layout_height="wrap_content" />
 
 		<Button android:id="@+id/cancel" android:text="@string/manual_entry_cancel"
-			android:layout_width="150px" android:layout_height="wrap_content" />
+			android:layout_width="150sp" android:layout_height="wrap_content" />
 
 	</LinearLayout>
 
