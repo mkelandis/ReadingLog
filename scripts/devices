@@ -1,2 +1,2 @@
 #!/bin/bash
-~/adt/adt-bundle-linux-x86_64/sdk/platform-tools/adb devices
+~/adt/sdk/platform-tools/adb devices

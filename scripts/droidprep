@@ -1,5 +1,5 @@
 #!/bin/bash
 
 restart udev
-~/adt/adt-bundle-linux-x86_64/sdk/platform-tools/adb kill-server
-~/adt/adt-bundle-linux-x86_64/sdk/platform-tools/adb start-server
+~/adt/sdk/platform-tools/adb kill-server
+~/adt/sdk/platform-tools/adb start-server
