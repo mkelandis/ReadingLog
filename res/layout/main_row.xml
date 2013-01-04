@@ -2,12 +2,12 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content" android:layout_height="wrap_content"
-	android:orientation="horizontal" android:padding="2px" android:paddingRight="2px" 
+	android:orientation="horizontal" android:padding="2dp" android:paddingRight="2dp" 
 	android:gravity="center_vertical">
 
 	<ImageView android:id="@+id/bookthumb" android:layout_width="wrap_content"
 		android:gravity="center_vertical" android:layout_height="wrap_content" 
-		android:minWidth="100px"/>
+		android:minWidth="100dp" android:contentDescription="@string/content_desc_bookthumb"/>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
-		<TextView android:id="@+id/activity"
+		<TextView android:id="@+id/read_date"
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="wrap_content" android:layout_height="wrap_content" />
 

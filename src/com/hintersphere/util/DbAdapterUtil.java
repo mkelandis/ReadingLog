@@ -1,16 +1,12 @@
 package com.hintersphere.util;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
-import com.hintersphere.booklogger.BookLoggerException;
 
 /**
  * Utility methods for Android DB Adapters.
@@ -36,26 +32,6 @@ public class DbAdapterUtil {
 				c.close();
 		}
 		return ar;
-	}
-
-	public static Date toDate(String dbDateStr) {
-		Date toDate = null;
-		try {
-			toDate = SimpleDateFormat.getDateTimeInstance().parse(dbDateStr);
-		} catch (Exception e) {
-			throw new BookLoggerException("Could not parse create date from db", e);
-		}
-		return toDate;
-	}
-
-	public static String fromDate(Date date) {
-		String dbDateStr = null;
-		try {
-			dbDateStr = SimpleDateFormat.getDateTimeInstance().format(date);
-		} catch (Exception e) {
-			throw new BookLoggerException("Could not parse create date from db", e);
-		}
-		return dbDateStr;
 	}
 
 }

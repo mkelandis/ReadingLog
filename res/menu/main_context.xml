@@ -4,15 +4,6 @@
 
     <group android:checkableBehavior="single">
 
-		<item android:orderInCategory="1" android:id="@+id/child"
-			android:title="@string/context_menu_childread"></item>
-
-		<item android:title="@string/context_menu_parentread"
-			android:id="@+id/parent" android:orderInCategory="2"></item>
-
-		<item android:title="@string/context_menu_parentchildread"
-			android:id="@+id/parentchild" android:orderInCategory="3"></item>
-
 		<item android:title="@string/context_menu_delbook"
 			android:id="@+id/delete" android:checkable="false" android:orderInCategory="4"></item>
 

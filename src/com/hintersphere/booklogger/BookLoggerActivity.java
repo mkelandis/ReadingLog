@@ -15,26 +15,27 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteCursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.google.ads.AdRequest;
 import com.google.ads.InterstitialAd;
@@ -72,6 +73,7 @@ public class BookLoggerActivity extends Activity {
     private static final int ACTIVITY_EDIT_LIST = 0;
     private static final int ACTIVITY_NEW_ENTRY = 1;
     private static final int ACTIVITY_SEND_LIST = 2;
+    private static final int ACTIVITY_DETAILS = 3;
     
     // options menu stuff
     private static final int ADDBOOK_ID = Menu.FIRST;
@@ -456,16 +458,6 @@ public class BookLoggerActivity extends Activity {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_context, menu);
 		menu.setHeaderTitle(R.string.context_menu_title);
-		
-		// display current selection as checked/selected
-		AdapterContextMenuInfo mInfo = (AdapterContextMenuInfo) menuInfo;
-		BookListCursorAdapter adapter = (BookListCursorAdapter) getListAdapter();
-		SQLiteCursor cursor = (SQLiteCursor) adapter.getItem(mInfo.position);
-		MenuItem item = menu.getItem(cursor.getShort(4));
-		if (item != null) {
-			item.setChecked(true);
-		}
-		
 	}
 
 
@@ -477,21 +469,6 @@ public class BookLoggerActivity extends Activity {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		mListEntriesCursorDirty = true; // mark dirty so the list is refreshed
 		switch (item.getItemId()) {
-		case R.id.parent:
-			item.setChecked(true);
-			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ);
-			refreshView();
-			return true;
-		case R.id.child:
-			item.setChecked(true);
-			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ);
-			refreshView();
-			return true;
-		case R.id.parentchild:
-			item.setChecked(true);
-			mDbHelper.updateActivity(info.id, BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ);
-			refreshView();
-			return true;
 		case R.id.delete:
 			// persist the id in a member variable - we'll pull it out when the
 			// dialog is handled.
@@ -503,27 +480,20 @@ public class BookLoggerActivity extends Activity {
 		}
 	}
 
+    private View getListView() {
+        ListView listView = (ListView) findViewById(R.id.mainlist);
+        listView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(parent.getContext(), BookListDetailActivity.class);
+                intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, Long.valueOf(id));
+                startActivityForResult(intent, ACTIVITY_DETAILS);
+            }
+        });
+        return listView;
+    }
 
-	
-	private View getListView() {
-		return (ListView) findViewById(R.id.mainlist);
-	}	
-
-	private ListAdapter getListAdapter() {
-		ListView view = (ListView) getListView();
-		return view.getAdapter();
-	}
-	
-	/**
-	 * TODO::figure out how to properly refresh the view
-	 *
-	 */
-	private void refreshView() {
-		CursorAdapter cursorAdapter = (CursorAdapter) getListAdapter();
-		cursorAdapter.getCursor().requery();
-	}
-
-	/**
+    /**
 	 * Populates the last selected list from the saved instance state or the database depending 
 	 * on availability
 	 * @return

@@ -1,6 +1,5 @@
 package com.hintersphere.booklogger;
 
-import java.util.Date;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -44,7 +43,6 @@ public class BookLoggerDbAdapter {
     public static final String DB_COL_ACTIVITY = "activity"; // type of activityto log
     public static final String DB_COL_ARLEVEL = "arlevel"; // accelerated readerlevel
     public static final String DB_COL_ARPOINTS = "arpoints"; // acceleratedreader points
-    public static final String DB_COL_WORDCOUNT = "wordcount"; // wordcount
     public static final String DB_COL_CREATEDT = "createdt"; // timestamp create date
     public static final String DB_COL_COMMENT = "comment"; // comments
     public static final String DB_COL_DATEREAD = "dateRead"; // read date
@@ -67,12 +65,19 @@ public class BookLoggerDbAdapter {
             + " integer primary key autoincrement, " + DB_COL_NAME + " text not null, " + DB_COL_PRIORITY
             + " integer not null);";
     private static final String DB_CREATE_LISTENTRY = "create table if not exists " + DB_TAB_LISTENTRY + " ("
-            + DB_COL_ID + " integer primary key autoincrement, " + DB_COL_LISTID + " integer not null, " + DB_COL_TITLE
-            + " text not null, " + DB_COL_AUTHOR + " text not null, " + DB_COL_THUMB + " text not null, " + DB_COL_ISBN
-            + " text not null, " + DB_COL_ACTIVITY + " integer not null, " + DB_COL_ARLEVEL + " integer null, "
-            + DB_COL_ARPOINTS + " integer null, " + DB_COL_WORDCOUNT + " integer null, " + DB_COL_COMMENT
-            + " text null, " + DB_COL_DATEREAD + " text not null DEFAULT CURRENT_TIMESTAMP, " + DB_COL_MINUTES
-            + " integer null, " + DB_COL_CREATEDT + " text not null DEFAULT CURRENT_TIMESTAMP);";
+            + DB_COL_ID + " integer primary key autoincrement, " 
+            + DB_COL_LISTID + " integer not null, " 
+            + DB_COL_TITLE + " text not null, " 
+            + DB_COL_AUTHOR + " text not null, " 
+            + DB_COL_THUMB + " text not null, " 
+            + DB_COL_ISBN + " text not null, " 
+            + DB_COL_ACTIVITY + " integer not null, " 
+            + DB_COL_ARLEVEL + " integer null, "
+            + DB_COL_ARPOINTS + " integer null, " 
+            + DB_COL_COMMENT + " text null, " 
+            + DB_COL_DATEREAD + " text not null DEFAULT CURRENT_TIMESTAMP, " 
+            + DB_COL_MINUTES + " integer null, " 
+            + DB_COL_CREATEDT + " text not null DEFAULT CURRENT_TIMESTAMP);";
 
     private static final String DB_WHERE_LISTENTRIES = DB_COL_LISTID + " = ?";
 
@@ -299,7 +304,6 @@ public class BookLoggerDbAdapter {
         initialValues.put(DB_COL_ACTIVITY, activity);
         initialValues.put(DB_COL_ARLEVEL, (arlevel == -1 ? null : arlevel));
         initialValues.put(DB_COL_ARPOINTS, (arpoints == -1 ? null : arpoints));
-        initialValues.put(DB_COL_WORDCOUNT, (wordcount == -1 ? null : wordcount));
 
         long id = 0;
         try {
@@ -309,20 +313,6 @@ public class BookLoggerDbAdapter {
         }
 
         return id;
-    }
-
-    /**
-     * Update the activity of a book list entry... possible values include child read, parent read, parent and child
-     * read together.
-     * 
-     * @param rowId to be updated
-     * @param activity to record
-     * @return true on successfull update
-     */
-    public boolean updateActivity(long rowId, short activity) {
-        ContentValues args = new ContentValues();
-        args.put(DB_COL_ACTIVITY, activity);
-        return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
     }
 
     /**
@@ -341,25 +331,16 @@ public class BookLoggerDbAdapter {
     }
 
     /**
-     * Update the book detail in a book log entry
+     * Update the data entry metadata fields of a book log entry
      * 
      * @param rowId to be updated
-     * @param title to be updated to
-     * @param author to be updated to
-     * @param activity indicates who did the reading (child, parent, both)
-     * @param minutes minutes spent reading for this entry
-     * @param dateRead date that the book was read on
-     * @param comment optional comments to be stored with the book entry
+     * @param readBy person who read the book (parent/child/together)
+     * @param comment to be updated
      * @return true or false if the update failed.
      */
-    public boolean updateEntry(long rowId, String title, String author, short activity, int minutes, Date dateRead,
-            String comment) {
+    public boolean updateBookEntry(long rowId, short readBy, String comment) {
         ContentValues args = new ContentValues();
-        args.put(DB_COL_TITLE, title);
-        args.put(DB_COL_AUTHOR, author);
-        args.put(DB_COL_ACTIVITY, activity);
-        args.put(DB_COL_MINUTES, minutes);
-        args.put(DB_COL_DATEREAD, DbAdapterUtil.fromDate(dateRead));
+        args.put(DB_COL_ACTIVITY, readBy);
         args.put(DB_COL_COMMENT, comment);
         return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
     }
@@ -401,7 +382,7 @@ public class BookLoggerDbAdapter {
         Cursor cursor = null;
         try {
             cursor = mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB,
-                    DB_COL_ACTIVITY, DB_COL_CREATEDT }, DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) },
+                    DB_COL_ACTIVITY, DB_COL_DATEREAD, DB_COL_CREATEDT }, DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) },
                     null, null, null);
         } catch (Exception e) {
             Log.e(CLASSNAME, "Error fetching list entries by id", e);
@@ -420,7 +401,7 @@ public class BookLoggerDbAdapter {
         Cursor cursor = null;
         try {
             cursor = mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB,
-                    DB_COL_ACTIVITY, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT },
+                    DB_COL_ACTIVITY, DB_COL_DATEREAD, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT },
                     DB_WHERE_LISTENTRY, new String[] { String.valueOf(listEntryId) }, null, null, null);
         } catch (Exception e) {
             Log.e(CLASSNAME, "Error fetching list entries by id", e);

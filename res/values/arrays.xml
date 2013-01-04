@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="read_by">
+        <item>Read By Child</item>
+        <item>Read By Parent</item>
+        <item>Read Together</item>
+    </string-array>
+</resources>
