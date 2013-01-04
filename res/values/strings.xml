@@ -58,6 +58,7 @@
     <string name="pdf_col_title">Title</string>
     <string name="pdf_col_author">Author</string>
     <string name="pdf_col_activity">Activity</string>
+    <string name="pdf_col_comment">Comment</string>
     <string name="pdf_col_initials">Parent Initials</string>
     <string name="pdf_footer_tagline">ReadingLog for Android</string>
     <string name="admob_keywords">book|read|children\'s books|children|education|school|author|student|homework|summer reading</string>

@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -81,6 +82,7 @@ public enum BitmapManager {
     }
 
     public void loadBitmap(final String url, final ImageView imageView, final int width, final int height) {
+
         imageViews.put(imageView, url);
         Bitmap bitmap = getBitmapFromCache(url);
 
@@ -90,7 +92,9 @@ public enum BitmapManager {
             imageView.setImageBitmap(bitmap);
         } else {
             imageView.setImageBitmap(placeholder);
-            queueJob(url, imageView, width, height);
+            if (!TextUtils.isEmpty(url)) {
+                queueJob(url, imageView, width, height);
+            }
         }
     }
 

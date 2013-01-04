@@ -1,8 +1,5 @@
 package com.hintersphere.booklogger;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -14,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hintersphere.util.BitmapManager;
+import com.hintersphere.util.DbAdapterUtil;
 
 /**
  * This cursor adapter pulls resource strings for the book activity and
@@ -94,11 +92,11 @@ public class BookListCursorAdapter extends CursorAdapter {
 		// get the title and author
 		viewHolder.title.setText(mCur.getString(mColIdxTitle));
 		viewHolder.author.setText(mCur.getString(mColIdxAuthor));
-        viewHolder.readDate.setText(getSQLiteDateAsString(mCur.getLong(mColIdxReadDate)));
+        viewHolder.readDate.setText(DbAdapterUtil.getDateInUserFormat(mCur.getString(mColIdxReadDate), mParentContext));
 		
 		// handle the book thumbnail
 		String imageUrl = mCur.getString(mColIdxThumb);
-		viewHolder.thumbnail.setTag(imageUrl);  
+		viewHolder.thumbnail.setTag(imageUrl);
 		BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail, 75, 75);  
 		
         return convertView;
@@ -113,10 +111,4 @@ public class BookListCursorAdapter extends CursorAdapter {
 	public void bindView(View arg0, Context arg1, Cursor arg2) {
 	}
 	
-	private String getSQLiteDateAsString(Long dateToSecs) {
-        // use a locale based string for the date
-        DateFormat formatter = android.text.format.DateFormat.getDateFormat(mParentContext);
-        Date dateObj = new Date(dateToSecs * 1000);
-        return formatter.format(dateObj);
-	}
 }
