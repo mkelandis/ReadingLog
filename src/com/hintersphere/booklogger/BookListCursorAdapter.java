@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.hintersphere.util.BitmapManager;
+import com.hintersphere.util.DbAdapterUtil;
 
 /**
  * This cursor adapter pulls resource strings for the book activity and
@@ -23,15 +25,16 @@ public class BookListCursorAdapter extends CursorAdapter {
 	private LayoutInflater mInflater;
 	private int mColIdxTitle;
 	private int mColIdxAuthor;
-	private int mColIdxActivity;
+	private int mColIdxReadDate;
 	private int mColIdxThumb;	
 	private Cursor mCur;
+	private Context mParentContext;
 
 	// keep a reference to the views so they can be lazily loaded
 	static class ViewHolder {
 		TextView title = null;
 		TextView author = null;
-		TextView activity = null;
+		TextView readDate = null;
 		ImageView thumbnail = null;
 	}
 		
@@ -40,10 +43,11 @@ public class BookListCursorAdapter extends CursorAdapter {
 		mInflater = LayoutInflater.from(context);
 		mColIdxTitle = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE);
 		mColIdxAuthor = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR);
-		mColIdxActivity = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY);
+		mColIdxReadDate = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD);
 		mColIdxThumb = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB);
 		mCur = cursor;
 		init(context);
+		mParentContext = context;
 	}
 
 	public BookListCursorAdapter(Context context, Cursor cursor, boolean autoRequery) {
@@ -51,15 +55,16 @@ public class BookListCursorAdapter extends CursorAdapter {
 		mInflater = LayoutInflater.from(context);
 		mColIdxTitle = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE);
 		mColIdxAuthor = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR);
-		mColIdxActivity = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY);
+        mColIdxReadDate = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD);
 		mColIdxThumb = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB);
 		mCur = cursor;
 		init(context);
+        mParentContext = context;
 	}
 	
 	private void init(Context context) {		  
-        BitmapManager.INSTANCE.setPlaceholder(BitmapFactory.decodeResource(  
-                context.getResources(), R.drawable.defbookcover));  
+        BitmapManager.INSTANCE.setPlaceholder(BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.defbookcover));
 	}
 	
 	
@@ -75,7 +80,7 @@ public class BookListCursorAdapter extends CursorAdapter {
             viewHolder = new ViewHolder();
             viewHolder.title = (TextView) convertView.findViewById(R.id.title);
             viewHolder.author = (TextView) convertView.findViewById(R.id.author);
-            viewHolder.activity = (TextView) convertView.findViewById(R.id.activity);
+            viewHolder.readDate = (TextView) convertView.findViewById(R.id.read_date);
             viewHolder.thumbnail = (ImageView) convertView.findViewById(R.id.bookthumb);
             convertView.setTag(viewHolder);
         } else {
@@ -87,26 +92,12 @@ public class BookListCursorAdapter extends CursorAdapter {
 		// get the title and author
 		viewHolder.title.setText(mCur.getString(mColIdxTitle));
 		viewHolder.author.setText(mCur.getString(mColIdxAuthor));
+        viewHolder.readDate.setText(DbAdapterUtil.getDateInUserFormat(mCur.getString(mColIdxReadDate), mParentContext));
 		
-		// handle the activity text - db stores key and not application resource name
-		switch (mCur.getInt(mColIdxActivity)) {
-			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
-				viewHolder.activity.setText(R.string.context_menu_childread);
-				break;
-			case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
-				viewHolder.activity.setText(R.string.context_menu_parentread);
-				break;
-			case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
-				viewHolder.activity.setText(R.string.context_menu_parentchildread);
-				break;
-		}
-
 		// handle the book thumbnail
 		String imageUrl = mCur.getString(mColIdxThumb);
-//		if (imageUrl != null && !"".equals(imageUrl)) {
-			viewHolder.thumbnail.setTag(imageUrl);  
-			BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail, 75, 75);  
-//		}
+		viewHolder.thumbnail.setTag(imageUrl);
+		BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail, 75, 75);  
 		
         return convertView;
 	}
@@ -119,4 +110,5 @@ public class BookListCursorAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View arg0, Context arg1, Cursor arg2) {
 	}
+	
 }

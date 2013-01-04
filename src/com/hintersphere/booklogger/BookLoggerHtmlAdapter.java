@@ -5,19 +5,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Set;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Environment;
 
-public class BookLoggerHtmlAdapter {
+import com.hintersphere.util.DbAdapterUtil;
 
-	private static final SimpleDateFormat DATE_FORMAT_SQL = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
-	private static final SimpleDateFormat DATE_FORMAT_PDF = new SimpleDateFormat("MM/dd/yy");
+public class BookLoggerHtmlAdapter {
 
 	private Context mCtx;
 	private Set<String> mKeywords;
@@ -74,16 +70,18 @@ public class BookLoggerHtmlAdapter {
 		    writer.append("<tr style=\"border: 1px solid #dddddd; font-size: 12px; background-color:#dddddd;\">\n");
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_num), "5%");
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_date), "10%");
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_title), "40%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_title), "20%");
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_author), "20%");
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_activity), "15%");
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_initials), "10%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_activity), "10%");
+            headerCell(writer, mCtx.getString(R.string.pdf_col_comment), "30%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_initials), "5%");
 		    writer.append("</tr>");
 		    
 			while (cursor.moveToNext()) {
 				
 				String booktitle = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE));
 				String author = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR));
+                String comment = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_COMMENT));
 				
 				// append some keywords
 				mKeywords.add(booktitle);
@@ -91,8 +89,9 @@ public class BookLoggerHtmlAdapter {
 				
 			    writer.append("<tr style=\"font-size: 12px;\" >\n");
 			    cell(writer, "" + (cursor.getPosition() + 1));
-				cell(writer, formatDate(cursor.getString(cursor
-						.getColumnIndex(BookLoggerDbAdapter.DB_COL_CREATEDT))), "center");
+                cell(writer, DbAdapterUtil.getDateInUserFormat(
+                        cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD)), mCtx),
+                        "center");
 				cell(writer, booktitle);
 			    cell(writer, author);
 				switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
@@ -106,12 +105,13 @@ public class BookLoggerHtmlAdapter {
 					cell(writer, mCtx.getString(R.string.context_menu_parentchildread));
 					break;
 				}
+                cell(writer, comment);
 			    cell(writer, "");  // empty cell for initials
 			    writer.append("</tr>");
 			}
 			
 			// footer line
-			writer.append("<tr><td align=\"right\" colspan=\"6\" style=\"font-size:8px; font-style:italic\">"
+			writer.append("<tr><td align=\"right\" colspan=\"7\" style=\"font-size:8px; font-style:italic\">"
 							+ mCtx.getString(R.string.pdf_footer_tagline) + "</td></tr>\n");
 		    writer.append("</table>\n");
 		    writer.append("</body>\n</html>\n");		    
@@ -142,14 +142,4 @@ public class BookLoggerHtmlAdapter {
 		writer.append(contents);
 		writer.append("</d>");
 	}
-	private String formatDate(String date) {
-		Date origDate = null;
-		try {
-			origDate = DATE_FORMAT_SQL.parse(date);
-		} catch (Exception e) {
-			throw new BookLoggerException("Could not parse create date from db", e);
-		}
-		return DATE_FORMAT_PDF.format(origDate);
-	}
-
 }
