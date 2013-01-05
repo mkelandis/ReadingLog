@@ -334,12 +334,14 @@ public class BookLoggerDbAdapter {
      * Update the data entry metadata fields of a book log entry
      * 
      * @param rowId to be updated
+     * @param minutes spent reading to be updated
      * @param readBy person who read the book (parent/child/together)
      * @param comment to be updated
      * @return true or false if the update failed.
      */
-    public boolean updateBookEntry(long rowId, short readBy, String comment) {
+    public boolean updateBookEntry(long rowId, int minutes, short readBy, String comment) {
         ContentValues args = new ContentValues();
+        args.put(DB_COL_MINUTES, minutes);
         args.put(DB_COL_ACTIVITY, readBy);
         args.put(DB_COL_COMMENT, comment);
         return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;

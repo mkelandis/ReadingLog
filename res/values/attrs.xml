@@ -8,5 +8,5 @@
 			<enum name="IAB_LEADERBOARD" value="4" />
 		</attr>
 		<attr name="adUnitId" format="string" />
-	</declare-styleable>
+	</declare-styleable>	
 </resources>

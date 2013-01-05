@@ -460,16 +460,15 @@ public class BookLoggerActivity extends Activity {
 		menu.setHeaderTitle(R.string.context_menu_title);
 	}
 
-
-	/**
-	 * TODO::figure out code to refresh single view. 
-	 */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		mListEntriesCursorDirty = true; // mark dirty so the list is refreshed
 		switch (item.getItemId()) {
-		case R.id.delete:
+        case R.id.details:
+            startBookDetailsActivity(this, info.id);            
+            return true;            
+        case R.id.delete:
 			// persist the id in a member variable - we'll pull it out when the
 			// dialog is handled.
 			mRemoveBookId = info.id;
@@ -484,13 +483,17 @@ public class BookLoggerActivity extends Activity {
         ListView listView = (ListView) findViewById(R.id.mainlist);
         listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(parent.getContext(), BookListDetailActivity.class);
-                intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, Long.valueOf(id));
-                startActivityForResult(intent, ACTIVITY_DETAILS);
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {                
+                startBookDetailsActivity(parent.getContext(), id);
             }
         });
         return listView;
+    }
+    
+    private void startBookDetailsActivity(Context ctx, long rowid) {
+        Intent intent = new Intent(ctx, BookListDetailActivity.class);
+        intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, Long.valueOf(rowid));
+        startActivityForResult(intent, ACTIVITY_DETAILS);        
     }
 
     /**

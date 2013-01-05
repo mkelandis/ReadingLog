@@ -4,11 +4,14 @@
 
     <group android:checkableBehavior="single">
 
+		<item android:title="@string/context_menu_details"
+			android:id="@+id/details" android:checkable="false" android:orderInCategory="1"></item>
+        
 		<item android:title="@string/context_menu_delbook"
-			android:id="@+id/delete" android:checkable="false" android:orderInCategory="4"></item>
+			android:id="@+id/delete" android:checkable="false" android:orderInCategory="2"></item>
 
 		<item android:title="@string/context_menu_cancel"
-			android:id="@+id/cancel" android:checkable="false" android:orderInCategory="4"></item>
+			android:id="@+id/cancel" android:checkable="false" android:orderInCategory="3"></item>
 
 	</group>
 
