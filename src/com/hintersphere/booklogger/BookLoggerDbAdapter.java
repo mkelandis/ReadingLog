@@ -346,6 +346,19 @@ public class BookLoggerDbAdapter {
     }
 
     /**
+     * Update the read date field of a book log entry
+     * 
+     * @param rowId to be updated
+     * @param utcDate to be updated
+     * @return true or false if the update failed.
+     */
+    public boolean updateReadDate(long rowId, String utcDate) {
+        ContentValues args = new ContentValues();
+        args.put(DB_COL_DATEREAD, utcDate);
+        return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
+    }
+
+    /**
      * Delete the listentry with the given rowId
      * 
      * @param rowId id of listentry to delete

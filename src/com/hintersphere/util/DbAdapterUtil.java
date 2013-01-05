@@ -65,6 +65,21 @@ public class DbAdapterUtil {
     }
     
     /**
+     * Format a java date into a SQLite UTC date string.
+     * @param date to be formatted
+     * @return UTC String representation of the date.
+     */
+    public static String fromDate(Date date) {
+        String utcDate = null;
+        try {
+            utcDate = new SimpleDateFormat(DATE_FORMAT_SQLITE_UTC, Locale.getDefault()).format(date);
+        } catch (Exception e) {
+            throw new BookLoggerException("Could not format date from Date: " + date, e);
+        }
+        return utcDate;
+    }    
+
+    /**
      * @param utcDateStr used by SQLite when text columns store timestamps
      * @param context android context used to identify user's locale
      * @return date formatted according to user's preference
