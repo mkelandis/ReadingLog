@@ -83,7 +83,6 @@ public class BookListDetailActivity extends FragmentActivity {
         super.onSaveInstanceState(outState);
         saveState();
         outState.putSerializable(BookLoggerDbAdapter.DB_COL_ID, mRowId);
-        outState.putSerializable(BookLoggerDbAdapter.DB_COL_DATEREAD, mReadDateUtc);
     }
     
     @Override
