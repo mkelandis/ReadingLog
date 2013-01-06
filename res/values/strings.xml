@@ -54,11 +54,13 @@
     <string name="pdf_summary_instructor">Teacher:</string>
     <string name="pdf_summary_student">Student:</string>
     <string name="pdf_summary_total">Total Books:</string>
+    <string name="pdf_summary_totalminutes">Total Time Spent:</string>
     <string name="pdf_col_num">#</string>
     <string name="pdf_col_date">Date</string>
     <string name="pdf_col_title">Title</string>
     <string name="pdf_col_author">Author</string>
     <string name="pdf_col_activity">Activity</string>
+    <string name="pdf_col_minutes">Time</string>
     <string name="pdf_col_comment">Comment</string>
     <string name="pdf_col_initials">Parent Initials</string>
     <string name="pdf_footer_tagline">ReadingLog for Android</string>

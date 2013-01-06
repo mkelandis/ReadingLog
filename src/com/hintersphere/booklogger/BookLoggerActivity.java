@@ -5,6 +5,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -560,12 +564,30 @@ public class BookLoggerActivity extends Activity {
 	 * 
 	 * @param isbn to pull data from
 	 */
-	private void addBookByISBN(String isbn) throws BookNotFoundException {
+	private void addBookByISBN(final String isbn) throws BookNotFoundException {
 		
 		JSONObject jsonObject = null;
 		try {
-			jsonObject = RestHelper.getJson(GOOGLE_BOOKS_ISBN_LOOKUP + isbn);
-			
+		    
+		    ExecutorService executor = Executors.newSingleThreadExecutor();
+		    Future<JSONObject> future = executor.submit(new Callable<JSONObject>() {
+		        public JSONObject call() {
+		            JSONObject json = null;
+		            try {
+		                json = RestHelper.getJson(GOOGLE_BOOKS_ISBN_LOOKUP + isbn); 
+		            } catch (JSONException e) {
+		                throw new BookLoggerException("Could not retrieve JSON data for book.", e);
+		            }
+		            return json;
+		        }
+            });
+		    
+		    try {
+		        jsonObject = future.get();
+		    } catch (Exception e) { 
+		        throw new BookLoggerException("Error while executing thread to retrieve JSON.", e);
+		    }
+		    
 			JSONArray items = jsonObject.getJSONArray("items");
 			if (items.length() == 0) {
 				throw new BookNotFoundException("Google Books could not find records for: " + isbn);
@@ -693,4 +715,6 @@ public class BookLoggerActivity extends Activity {
 		mListEntriesCursorDirty = false;
 		return mListEntriesCursor;
 	}
+	
+	
 }

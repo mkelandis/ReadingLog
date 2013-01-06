@@ -397,8 +397,8 @@ public class BookLoggerDbAdapter {
         Cursor cursor = null;
         try {
             cursor = mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB,
-                    DB_COL_ACTIVITY, DB_COL_COMMENT, DB_COL_DATEREAD, DB_COL_CREATEDT }, DB_WHERE_LISTENTRIES,
-                    new String[] { String.valueOf(listid) }, null, null, DB_COL_DATEREAD);
+                    DB_COL_ACTIVITY, DB_COL_COMMENT, DB_COL_DATEREAD, DB_COL_MINUTES, DB_COL_CREATEDT },
+                    DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) }, null, null, DB_COL_DATEREAD);
         } catch (Exception e) {
             Log.e(CLASSNAME, "Error fetching list entries by id", e);
         }

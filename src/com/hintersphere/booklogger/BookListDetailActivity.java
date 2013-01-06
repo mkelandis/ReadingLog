@@ -204,7 +204,7 @@ public class BookListDetailActivity extends FragmentActivity {
     }
     
     private void trackProgress(int minutes) {
-        mMinutesDisplayed.setText(String.format("%d:%02d", minutes/60, (minutes%60)));
+        mMinutesDisplayed.setText(BookLoggerUtil.formatMinutes(minutes));
         mMinutes = minutes;
     }
 }

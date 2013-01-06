@@ -30,6 +30,9 @@ public class BookLoggerHtmlAdapter {
 			throw new BookLoggerException("Cursor does not contain any fetched records.");
 		}
 
+		// calculate minutes
+		String totalMinutes = getTotalMinutes(cursor);
+
 		File outputFile = null;
 		File sdDir = Environment.getExternalStorageDirectory();
 		outputFile = new File(sdDir, "/booklog.html");
@@ -51,18 +54,22 @@ public class BookLoggerHtmlAdapter {
 		    writer.append("<body style=\"margin:8px; font-family:Helvetica; background-color:#ffffff;\">\n");
 		    
 		    writer.append("<!-- SUMMARY TABLE -->\n");
-		    writer.append("<table style=\"margin-bottom: 8px; font-size:18; font-weight:bold;\">\n");
+		    writer.append("<table style=\"margin-bottom: 8px; font-size:16; font-weight:bold;\">\n");
 		    writer.append("<tr>");
 		    summaryHeaderCell(writer, mCtx.getString(R.string.pdf_summary_instructor));
-			writer.append("<td width=\"70%\" style=\"border-bottom: 2px solid #000000;\">&nbsp;</td>");
-		    writer.append("</tr>");
+			writer.append("<td align=\"left\" width=\"37%\" style=\"border-bottom: 2px solid #000000;\">&nbsp;</td>");
+            writer.append("<td width=\"3%\">&nbsp;</td>");
+            writer.append("<th width=\"40%\" align=\"left\" colspan=\"2\">");
+            writer.append(mCtx.getString(R.string.pdf_summary_total) + "&nbsp;" + cursor.getCount());
+            writer.append("</th>");
+			writer.append("</tr>");
 		    writer.append("<tr>");
 		    summaryHeaderCell(writer, mCtx.getString(R.string.pdf_summary_student));
-			writer.append("<td style=\"border-bottom: 2px solid #000000;\">&nbsp;</td>");
-		    writer.append("</tr>");
-		    writer.append("<tr><th align=\"left\" colspan=\"2\">");
-		    writer.append(mCtx.getString(R.string.pdf_summary_total) + " " + cursor.getCount());
-		    writer.append("</th></tr>");
+			writer.append("<td align=\"left\" style=\"border-bottom: 2px solid #000000;\">&nbsp;</td>");
+            writer.append("<td>&nbsp;</td>");
+			writer.append("<th align=\"left\" colspan=\"2\">");
+            writer.append(mCtx.getString(R.string.pdf_summary_totalminutes) + "&nbsp;" + totalMinutes);
+            writer.append("</th></tr>");
 		    writer.append("</table>");
 
 		    writer.append("<!-- DATA TABLE -->\n");
@@ -71,18 +78,20 @@ public class BookLoggerHtmlAdapter {
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_num), "5%");
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_date), "10%");
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_title), "20%");
-		    headerCell(writer, mCtx.getString(R.string.pdf_col_author), "20%");
+		    headerCell(writer, mCtx.getString(R.string.pdf_col_author), "15%");
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_activity), "10%");
+            headerCell(writer, mCtx.getString(R.string.pdf_col_minutes), "10%");		    
             headerCell(writer, mCtx.getString(R.string.pdf_col_comment), "30%");
 		    headerCell(writer, mCtx.getString(R.string.pdf_col_initials), "5%");
-		    writer.append("</tr>");
-		    
-			while (cursor.moveToNext()) {
+		    writer.append("</tr>");		    
+		            
+		    while (cursor.moveToNext()) {
 				
 				String booktitle = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE));
 				String author = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR));
                 String comment = cursor.getString(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_COMMENT));
-				
+				int minutes = cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES));
+                
 				// append some keywords
 				mKeywords.add(booktitle);
 				mKeywords.add(author);
@@ -105,13 +114,21 @@ public class BookLoggerHtmlAdapter {
 					cell(writer, mCtx.getString(R.string.context_menu_parentchildread));
 					break;
 				}
-                cell(writer, comment);
+				
+				if (minutes <= 0) {
+	                cell(writer, mCtx.getString(R.string.detail_hint_minutes));				    
+				} else {
+                    cell(writer, BookLoggerUtil.formatMinutes(minutes));                 				    
+				}
+				
+				
+                cell(writer, comment != null ? comment : "");
 			    cell(writer, "");  // empty cell for initials
 			    writer.append("</tr>");
 			}
 			
 			// footer line
-			writer.append("<tr><td align=\"right\" colspan=\"7\" style=\"font-size:8px; font-style:italic\">"
+			writer.append("<tr><td align=\"right\" colspan=\"8\" style=\"font-size:8px; font-style:italic\">"
 							+ mCtx.getString(R.string.pdf_footer_tagline) + "</td></tr>\n");
 		    writer.append("</table>\n");
 		    writer.append("</body>\n</html>\n");		    
@@ -141,5 +158,21 @@ public class BookLoggerHtmlAdapter {
 		writer.append("<td style=\"border: 1px solid #dddddd;\" align=\"" + align + "\">");
 		writer.append(contents);
 		writer.append("</d>");
+	}
+	
+	private String getTotalMinutes(Cursor cursor) {
+        int totalminutes = 0;
+        while (cursor.moveToNext()) {
+            int minutes = cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES));
+            if (minutes > 0) {
+                totalminutes += minutes;
+            }
+        }
+        cursor.moveToPosition(-1);
+        
+        if (totalminutes == 0) {
+            return  mCtx.getString(R.string.detail_hint_minutes);
+        }        
+        return BookLoggerUtil.formatMinutes(totalminutes);
 	}
 }

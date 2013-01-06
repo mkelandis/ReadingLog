@@ -39,8 +39,8 @@ public enum BitmapManager {
 		pool = Executors.newFixedThreadPool(5);
 	}
 
-	public void setPlaceholder(Bitmap bmp) {
-		placeholder = bmp;
+	public void setPlaceholder(Bitmap bmp, int width, int height) {
+		placeholder = Bitmap.createScaledBitmap(bmp, width, height, true);;
 	}
 
 	public Bitmap getBitmapFromCache(String url) {
