@@ -13,11 +13,8 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 /**
- * Helper class to make HTTP requests that return JSON/XML representations, or the resources
- * directly
- * TODO::add a method to return XML and handle methods besides GET
+ * Helper class to make HTTP requests that return JSON/XML representations, or the resources directly.
  * @author Michael Landis
- *
  */
 public class RestHelper {
 

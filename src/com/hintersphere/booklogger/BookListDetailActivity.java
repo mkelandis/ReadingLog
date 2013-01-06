@@ -12,6 +12,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -20,14 +22,20 @@ import com.hintersphere.util.DbAdapterUtil;
 
 public class BookListDetailActivity extends FragmentActivity {
 
+    private static final int MAX_MINUTES = 3 * 60;
+    private static final int ROUNDING_INCREMENT_MINS = 5;
+    
     private BookLoggerDbAdapter mDbHelper;
     private Long mRowId;
     
     // data fields
-    private Spinner mReadBySpinner;
     private TextView mReadDate;
+    private TextView mMinutesDisplayed;
+    private SeekBar mMinutesSeekbar;
+    private Spinner mReadBySpinner;
     private TextView mComment;
 
+    private int mMinutes;
     private short mSelectedReadBy;
     private String mReadDateUtc;
     
@@ -47,8 +55,10 @@ public class BookListDetailActivity extends FragmentActivity {
         mDbHelper.open();
 
         mReadDate = (TextView) findViewById(R.id.entry_read_date);
-        mComment = (EditText) findViewById(R.id.entry_comment);
+        mMinutesDisplayed = (TextView) findViewById(R.id.minutes);
+        mMinutesSeekbar = getMinutesSeekBar(); 
         mReadBySpinner = getReadActivitySpinner(); 
+        mComment = (EditText) findViewById(R.id.entry_comment);
         
         populateFields();
     }
@@ -70,9 +80,13 @@ public class BookListDetailActivity extends FragmentActivity {
             
             mReadDateUtc = listentry.getString(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD)); 
             mReadDate.setText(DbAdapterUtil.getDateInUserFormat(mReadDateUtc, this));
-            mComment.setText(listentry.getString(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_COMMENT)));
+ 
+            mMinutesSeekbar.setProgress(listentry.getInt(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES)));
+            
             mSelectedReadBy = listentry.getShort(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY));
             mReadBySpinner.setSelection((int) mSelectedReadBy);
+
+            mComment.setText(listentry.getString(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_COMMENT)));
             
             listentry.close();
         }
@@ -132,7 +146,29 @@ public class BookListDetailActivity extends FragmentActivity {
     
     private void saveState() {        
         BookLoggerUtil.throwIfMissing(mRowId, "row id missing");
-        mDbHelper.updateBookEntry(mRowId, mSelectedReadBy, mComment.getText().toString());
+        mDbHelper.updateBookEntry(mRowId, mMinutes, mSelectedReadBy, mComment.getText().toString());
+    }
+    
+    private SeekBar getMinutesSeekBar() {
+
+        SeekBar minutesSeekBar = (SeekBar) findViewById(R.id.entry_minutes_seekbar);
+        minutesSeekBar.setMax(MAX_MINUTES);
+        
+        minutesSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                trackProgress(roundProgress(progress));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // nothing to do here.
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                seekBar.setSecondaryProgress(seekBar.getProgress());
+            }        
+        });
+        return minutesSeekBar;
     }
     
     private Spinner getReadActivitySpinner() {
@@ -163,5 +199,12 @@ public class BookListDetailActivity extends FragmentActivity {
         return activitySpinner;
     }
 
+    private int roundProgress(int progress) {
+        return (progress + (ROUNDING_INCREMENT_MINS - 1)) / ROUNDING_INCREMENT_MINS * ROUNDING_INCREMENT_MINS;
+    }
     
+    private void trackProgress(int minutes) {
+        mMinutesDisplayed.setText(BookLoggerUtil.formatMinutes(minutes));
+        mMinutes = minutes;
+    }
 }

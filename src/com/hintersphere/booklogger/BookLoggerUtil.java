@@ -1,5 +1,7 @@
 package com.hintersphere.booklogger;
 
+import java.util.Locale;
+
 public class BookLoggerUtil {
     
     /**
@@ -13,4 +15,12 @@ public class BookLoggerUtil {
         }                
     }
     
+    /**
+     * Format minutes for display.
+     * @param minutes to be formatted
+     * @return String representation of minutes as "hh:mm"
+     */
+    public static String formatMinutes(int minutes) {
+        return String.format(Locale.getDefault(), "%d:%02d", minutes/60, (minutes%60));
+    }
 }

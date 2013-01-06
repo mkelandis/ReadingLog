@@ -25,7 +25,8 @@
     <string name="options_menu_switchlist">Switch Log</string>
     <string name="options_menu_sendlist">Share Log</string>
     <string name="options_menu_deletelist">Delete Log</string>
-    <string name="context_menu_title">Remove Book?</string>
+    <string name="context_menu_title">From here you can&#8230;</string>
+    <string name="context_menu_details">View/Edit Book Details</string>
     <string name="context_menu_delbook">Remove Book</string>
     <string name="context_menu_cancel">Cancel</string>
     <string name="context_menu_childread">Read by Child</string>
@@ -53,16 +54,23 @@
     <string name="pdf_summary_instructor">Teacher:</string>
     <string name="pdf_summary_student">Student:</string>
     <string name="pdf_summary_total">Total Books:</string>
+    <string name="pdf_summary_totalminutes">Total Time Spent:</string>
     <string name="pdf_col_num">#</string>
     <string name="pdf_col_date">Date</string>
     <string name="pdf_col_title">Title</string>
     <string name="pdf_col_author">Author</string>
     <string name="pdf_col_activity">Activity</string>
+    <string name="pdf_col_minutes">Time</string>
     <string name="pdf_col_comment">Comment</string>
     <string name="pdf_col_initials">Parent Initials</string>
     <string name="pdf_footer_tagline">ReadingLog for Android</string>
     <string name="admob_keywords">book|read|children\'s books|children|education|school|author|student|homework|summer reading</string>
     <string name="admob_pubid">a14e9f5100bf3fb</string>
     <string name="detail_back">Back</string>
-    <string name="detail_comment">Comment:</string>
+    <string name="detail_label_date">Date:</string>
+    <string name="detail_label_minutes">Time Spent:</string>
+    <string name="detail_label_activity">Who Read This?:</string>
+    <string name="detail_label_comment">Comment:</string>
+    <string name="detail_hint_minutes">time not tracked</string>
+    <string name="detail_hint_comment">enter a comment</string>
 </resources>
