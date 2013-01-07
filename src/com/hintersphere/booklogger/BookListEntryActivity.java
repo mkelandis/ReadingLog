@@ -144,7 +144,7 @@ public class BookListEntryActivity extends Activity {
         String author = mAuthor.getText().toString();        
         if (mEntryId == null || mEntryId.longValue() <= 0) {
             long id = mDbHelper.createListEntry(mListId.longValue(), title, author, "", "",
-					BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ, -1, -1, -1);
+					BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ, -1, -1);
             if (id > 0) {
                 mEntryId = id;
             }

@@ -289,11 +289,10 @@ public class BookLoggerDbAdapter {
      * @param activity represents if the book was read, read to or shared
      * @param arlevel accelerated reading level (-1 for null)
      * @param arpoints accelerated reading points (-1 for null)
-     * @param wordcount number of words in the book (-1 for null)
      * @return rowId or -1 if failed
      */
     public long createListEntry(long listid, String title, String author, String thumb, String isbn, short activity,
-            int arlevel, int arpoints, int wordcount) {
+            int arlevel, int arpoints) {
 
         ContentValues initialValues = new ContentValues();
         initialValues.put(DB_COL_LISTID, listid);
