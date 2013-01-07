@@ -16,14 +16,13 @@ import android.widget.ImageView;
 
 
 /**
- * This code appropriated from:
- * http://negativeprobability.blogspot.com/2011/08/lazy-loading-of-images-in-listview.html
+ * This code appropriated from: http://negativeprobability.blogspot.com/2011/08/lazy-loading-of-images-in-listview.html
  * 
- * TODO::How does android handle singletons? If another app were to use this, would the default
- * image possibly be affected by a second app's thread?
+ * TODO::How does android handle singletons? If another app were to use this, would the default image possibly be
+ * affected by a second app's thread?
  * 
  * @author mlandis
- *
+ * 
  */
 public enum BitmapManager {
 	
@@ -33,14 +32,26 @@ public enum BitmapManager {
     private final ExecutorService pool;
     private Map<ImageView, String> imageViews = Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     private Bitmap placeholder;
+    private int width = 0;
+    private int height = 0;
 
 	BitmapManager() {
 		cache = new HashMap<String, SoftReference<Bitmap>>();
 		pool = Executors.newFixedThreadPool(5);
 	}
 
-	public void setPlaceholder(Bitmap bmp, int width, int height) {
-		placeholder = Bitmap.createScaledBitmap(bmp, width, height, true);;
+	/**
+	 * Initialize the manager with a placeholder and density information
+	 * @param bmp to be used as a placeholder when an image cannot be loaded.
+	 * @param width of the desired scaled image
+	 * @param height of the desired scaled image
+	 * @param density retrieved from getResources().getDisplayMetrics().density
+	 */
+	public void initialize(Bitmap bmp, int width, int height, float density) {
+	    // scale width and height using the display metrics density
+	    this.width = (int) (width * density + 0.5f);
+        this.height = (int) (width * density + 0.5f);	    
+		placeholder = Bitmap.createScaledBitmap(bmp, this.width, this.height, true);;
 	}
 
 	public Bitmap getBitmapFromCache(String url) {
@@ -51,7 +62,7 @@ public enum BitmapManager {
 		return null;
 	}
 
-    public void queueJob(final String url, final ImageView imageView, final int width, final int height) {
+    public void queueJob(final String url, final ImageView imageView) {
         /* Create handler in UI thread. */
         final Handler handler = new Handler() {
             @Override
@@ -71,7 +82,7 @@ public enum BitmapManager {
         pool.submit(new Runnable() {
             @Override
             public void run() {
-                final Bitmap bmp = downloadBitmap(url, width, height);
+                final Bitmap bmp = downloadBitmap(url);
                 Message message = Message.obtain();
                 message.obj = bmp;
                 Log.d(null, "Item downloaded: " + url);
@@ -81,7 +92,7 @@ public enum BitmapManager {
         });
     }
 
-    public void loadBitmap(final String url, final ImageView imageView, final int width, final int height) {
+    public void loadBitmap(final String url, final ImageView imageView) {
 
         imageViews.put(imageView, url);
         Bitmap bitmap = getBitmapFromCache(url);
@@ -93,12 +104,12 @@ public enum BitmapManager {
         } else {
             imageView.setImageBitmap(placeholder);
             if (!TextUtils.isEmpty(url)) {
-                queueJob(url, imageView, width, height);
+                queueJob(url, imageView);
             }
         }
     }
 
-    private Bitmap downloadBitmap(String url, int width, int height) {
+    private Bitmap downloadBitmap(String url) {
         Bitmap bitmap = RestHelper.getBitmap(url);
         bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
         cache.put(url, new SoftReference<Bitmap>(bitmap));
