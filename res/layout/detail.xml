@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="10dp"
-        android:hint="@string/detail_hint_comment"
+        android:hint="@string/detail_hint_minutes"
         android:textSize="28sp"/>
 
     <SeekBar 
