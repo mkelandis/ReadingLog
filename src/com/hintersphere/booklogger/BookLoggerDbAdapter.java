@@ -43,6 +43,7 @@ public class BookLoggerDbAdapter {
     public static final String DB_COL_ACTIVITY = "activity"; // type of activityto log
     public static final String DB_COL_ARLEVEL = "arlevel"; // accelerated readerlevel
     public static final String DB_COL_ARPOINTS = "arpoints"; // acceleratedreader points
+    public static final String DB_COL_WORDCOUNT = "wordcount"; // wordcount
     public static final String DB_COL_CREATEDT = "createdt"; // timestamp create date
     public static final String DB_COL_COMMENT = "comment"; // comments
     public static final String DB_COL_DATEREAD = "dateRead"; // read date
@@ -73,7 +74,8 @@ public class BookLoggerDbAdapter {
             + DB_COL_ISBN + " text not null, " 
             + DB_COL_ACTIVITY + " integer not null, " 
             + DB_COL_ARLEVEL + " integer null, "
-            + DB_COL_ARPOINTS + " integer null, " 
+            + DB_COL_ARPOINTS + " integer null, "
+            + DB_COL_WORDCOUNT + " integer null, "            
             + DB_COL_COMMENT + " text null, " 
             + DB_COL_DATEREAD + " text not null DEFAULT CURRENT_TIMESTAMP, " 
             + DB_COL_MINUTES + " integer null, " 
@@ -303,6 +305,7 @@ public class BookLoggerDbAdapter {
         initialValues.put(DB_COL_ACTIVITY, activity);
         initialValues.put(DB_COL_ARLEVEL, (arlevel == -1 ? null : arlevel));
         initialValues.put(DB_COL_ARPOINTS, (arpoints == -1 ? null : arpoints));
+        initialValues.put(DB_COL_WORDCOUNT, (String) null);
 
         long id = 0;
         try {
