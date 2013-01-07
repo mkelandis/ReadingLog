@@ -63,8 +63,8 @@ public class BookListCursorAdapter extends CursorAdapter {
 	}
 	
 	private void init(Context context) {		  
-        BitmapManager.INSTANCE.setPlaceholder(BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.defbookcover), 75, 75);
+        BitmapManager.INSTANCE.initialize(BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.defbookcover), 55, 55, context.getResources().getDisplayMetrics().density);
 	}
 	
 	
@@ -97,7 +97,7 @@ public class BookListCursorAdapter extends CursorAdapter {
 		// handle the book thumbnail
 		String imageUrl = mCur.getString(mColIdxThumb);
 		viewHolder.thumbnail.setTag(imageUrl);
-		BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail, 75, 75);  
+		BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail);  
 		
         return convertView;
 	}
