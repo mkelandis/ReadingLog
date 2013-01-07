@@ -106,7 +106,7 @@ public class BookLoggerDbAdapter {
                 db.execSQL(DB_CREATE_LISTENTRY);
                 db.setTransactionSuccessful();
             } catch (Exception e) {
-                Log.e(CLASSNAME, "Exception creating db tables", e);
+//                Log.e(CLASSNAME, "Exception creating db tables", e);
                 throw new BookLoggerException("Exception creating db tables", e);
             } finally {
                 db.endTransaction();
@@ -121,8 +121,8 @@ public class BookLoggerDbAdapter {
          */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(CLASSNAME, "Upgrading database from version " + oldVersion + " to " + newVersion
-                    + ", which will destroy all old data");
+//            Log.w(CLASSNAME, "Upgrading database from version " + oldVersion + " to " + newVersion
+//                    + ", which will destroy all old data");
             db.beginTransaction();
             try {
                 /**
@@ -169,7 +169,7 @@ public class BookLoggerDbAdapter {
 
                 db.setTransactionSuccessful();
             } catch (Exception e) {
-                Log.e(CLASSNAME, "Exception upgrading db tables", e);
+//                Log.e(CLASSNAME, "Exception upgrading db tables", e);
                 throw new BookLoggerException("Exception upgrading db tables", e);
             } finally {
                 db.endTransaction();
@@ -247,7 +247,7 @@ public class BookLoggerDbAdapter {
             cursor = mDb.query(DB_TAB_BOOKLIST, new String[] { DB_COL_ID, DB_COL_NAME }, DB_WHERE_BOOKLIST,
                     new String[] { String.valueOf(rowid) }, null, null, null);
         } catch (Exception e) {
-            Log.e(CLASSNAME, "Error fetching booklist for id = " + rowid, e);
+//            Log.e(CLASSNAME, "Error fetching booklist for id = " + rowid, e);
         }
 
         return cursor;
@@ -309,7 +309,7 @@ public class BookLoggerDbAdapter {
         try {
             id = mDb.insert(DB_TAB_LISTENTRY, null, initialValues);
         } catch (Exception e) {
-            Log.e(CLASSNAME, "Error creating list entry.", e);
+//            Log.e(CLASSNAME, "Error creating list entry.", e);
         }
 
         return id;
@@ -400,7 +400,7 @@ public class BookLoggerDbAdapter {
                     DB_COL_ACTIVITY, DB_COL_COMMENT, DB_COL_DATEREAD, DB_COL_MINUTES, DB_COL_CREATEDT },
                     DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) }, null, null, DB_COL_DATEREAD);
         } catch (Exception e) {
-            Log.e(CLASSNAME, "Error fetching list entries by id", e);
+//            Log.e(CLASSNAME, "Error fetching list entries by id", e);
         }
 
         return cursor;
@@ -420,7 +420,7 @@ public class BookLoggerDbAdapter {
                             DB_COL_DATEREAD, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT },
                     DB_WHERE_LISTENTRY, new String[] { String.valueOf(listEntryId) }, null, null, null);
         } catch (Exception e) {
-            Log.e(CLASSNAME, "Error fetching list entries by id", e);
+//            Log.e(CLASSNAME, "Error fetching list entries by id", e);
             throw new BookLoggerException("Error fetching list entries by id", e);
         }
 

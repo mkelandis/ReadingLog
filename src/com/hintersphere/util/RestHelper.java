@@ -38,7 +38,7 @@ public class RestHelper {
 			/**
 			 * TODO::Determine appropriate error handling approach
 			 */
-			Log.e(CLASSNAME, "Could not get HTTP Response from request: [" + requestUrl + "]", e);
+//			Log.e(CLASSNAME, "Could not get HTTP Response from request: [" + requestUrl + "]", e);
 			obj = null;	
 		}	
 

@@ -200,7 +200,7 @@ public class BookLoggerActivity extends Activity {
 			        		  mRemoveBookId = Long.MIN_VALUE;			        		  
 			        		  mListEntriesCursorDirty = true;
 			        	  } else {
-			        		  Log.e(CLASSNAME, "Unable to find id of book to be removed.");
+//			        		  Log.e(CLASSNAME, "Unable to find id of book to be removed.");
 			        	  }
 			        	  populateBooks();
 			           }
@@ -226,7 +226,7 @@ public class BookLoggerActivity extends Activity {
 				        	  populateBooks();
 			        	  } else {
 			        		  String msg = "Unable to find id of book to be removed.";
-			        		  Log.e(CLASSNAME, msg);
+//			        		  Log.e(CLASSNAME, msg);
 			        		  throw new BookLoggerException(msg);
 			        	  }
 			           }
@@ -267,7 +267,7 @@ public class BookLoggerActivity extends Activity {
 							populateState();
 							mListEntriesCursorDirty = true;
 							populateBooks();							
-							Log.d(CLASSNAME, "Selected: " + selectedId);
+//							Log.d(CLASSNAME, "Selected: " + selectedId);
 							dialog.dismiss();
 						}
 					});
@@ -311,7 +311,7 @@ public class BookLoggerActivity extends Activity {
 				try {
 					addBookByISBN(scanResult.getContents());
 				} catch (BookNotFoundException e) {
-					Log.e(CLASSNAME, "Could not find the book: ", e);
+//					Log.e(CLASSNAME, "Could not find the book: ", e);
 					// prompt for a re-scan
 					showDialog(DIALOG_RESCAN);
 				}
@@ -440,7 +440,8 @@ public class BookLoggerActivity extends Activity {
 //            	adRequest.addTestDevice("66AE4425C6895E23FCD3DE8C581FCCD6");
             	mInterstitial.loadAd(adRequest);
             	
-            	startActivityForResult(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)), ACTIVITY_SEND_LIST);
+            	startActivityForResult(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)),
+                    ACTIVITY_SEND_LIST);
             	return true;
             case DELETELIST_ID:
             	showDialog(DIALOG_DELETE_LIST);
@@ -603,7 +604,7 @@ public class BookLoggerActivity extends Activity {
 				try {
 					author = volumeInfo.getJSONArray("authors").getString(0);
 				} catch (JSONException e) {
-					Log.d(CLASSNAME, "Could not find the author in the JSON for isbn: " + isbn, e);
+//					Log.d(CLASSNAME, "Could not find the author in the JSON for isbn: " + isbn, e);
 				}
 				
 				String smallThumbnail = "";
@@ -611,7 +612,7 @@ public class BookLoggerActivity extends Activity {
 					JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
 					smallThumbnail = imageLinks.getString("smallThumbnail"); 
 				} catch (JSONException e) {
-					Log.d(CLASSNAME, "Could not find the smallThumbnail in the JSON for isbn: " + isbn, e);					
+//					Log.d(CLASSNAME, "Could not find the smallThumbnail in the JSON for isbn: " + isbn, e);					
 				}
 				
 				mDbHelper.createListEntry(mListId.longValue(), title, author, smallThumbnail, isbn,
@@ -620,7 +621,7 @@ public class BookLoggerActivity extends Activity {
 		} catch (JSONException e) {
 			String msg = "Could not process JSON for isbn: [" + isbn + "], JSON: [" + jsonObject
 					+ "]";
-			Log.e(CLASSNAME, msg, e);
+//			Log.e(CLASSNAME, msg, e);
 			throw new BookNotFoundException(msg, e);
 		}
 	}
@@ -653,8 +654,8 @@ public class BookLoggerActivity extends Activity {
 		setListAdapter(books);
         
 		// log the cursor for now
-		Log.d(CLASSNAME, "*************\n" + DatabaseUtils.dumpCursorToString(cursor)
-				+ "*************\n");
+//		Log.d(CLASSNAME, "*************\n" + DatabaseUtils.dumpCursorToString(cursor)
+//				+ "*************\n");
 	}
 	
 	
