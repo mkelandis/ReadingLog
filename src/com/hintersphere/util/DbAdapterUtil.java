@@ -40,7 +40,7 @@ public class DbAdapterUtil {
                 ar = new ArrayList<String>(Arrays.asList(c.getColumnNames()));
             }
         } catch (Exception e) {
-            Log.v(tableName, e.getMessage(), e);
+//            Log.v(tableName, e.getMessage(), e);
             e.printStackTrace();
         } finally {
             if (c != null)

@@ -307,9 +307,9 @@ public final class IntentIntegrator {
       try {
         PACKAGE_SETTER.invoke(intent, PACKAGE);
       } catch (InvocationTargetException ite) {
-        Log.w(TAG, ite.getTargetException());
+//        Log.w(TAG, ite.getTargetException());
       } catch (IllegalAccessException iae) {
-        Log.w(TAG, iae);
+//        Log.w(TAG, iae);
       }
     }
   }
