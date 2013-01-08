@@ -9,7 +9,7 @@ public class BookLoggerUtil {
     /**
      * Turn off logging for a release.
      */
-    public static final boolean LOG_ENABLED = false;
+    public static final boolean LOG_ENABLED = true;
     
     /**
      * Test value and throw exception with msg if missing. (null or less than zero).
