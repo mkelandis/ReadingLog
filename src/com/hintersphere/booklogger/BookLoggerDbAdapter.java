@@ -170,7 +170,7 @@ public class BookLoggerDbAdapter {
                     if (BookLoggerUtil.LOG_ENABLED) {
                         Log.d(CLASSNAME, "initializing read date as create date.");
                         Log.d(CLASSNAME, "orig cols: [" + cols + "]");
-                        Log.d(CLASSNAME, "temp cols: [" + cols + "]");
+                        Log.d(CLASSNAME, "temp cols: [" + fromCols + "]");
                     }
 
                 }
