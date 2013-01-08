@@ -26,7 +26,7 @@ Note: An advert may display after sending the log.
 Release Notes
 -------------
 
-### Version 1.1
+### Version 1.1 (1/7/2013)
 
 This version adds some prioritized features, which have been requested by Users. It also adds cleanup for ICS and Jellybean devices and a few bug fixes. Your existing logs will be unharmed by this update.
 
@@ -44,3 +44,7 @@ This version adds some prioritized features, which have been requested by Users.
 * Adjusted log entry display to include the date read, instead of the read by information. 
 * Resolved network access on main activity thread, when downloading book data.
 * Display of scaled images is more consistent between devices supporting different densities.
+
+#### Minor Releases
+
+* Version 1.1.2 (1/7/2013) - Fixed defect causing app crash on db upgrade as part of the 1.1 release.
