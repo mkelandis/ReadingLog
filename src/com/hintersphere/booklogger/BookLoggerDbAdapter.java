@@ -161,9 +161,18 @@ public class BookLoggerDbAdapter {
                 // do something special with date read - if new pull from create date
                 cols = TextUtils.join(",", colsListEntry);
                 String fromCols = new String(cols);
-                if (!colsListEntry.contains(DB_COL_DATEREAD)) {
+                
+                if (!cols.contains("," + DB_COL_DATEREAD)) {
+
                     cols.concat(", " + DB_COL_DATEREAD);
                     fromCols.concat(", " + DB_COL_CREATEDT);
+                    
+                    if (BookLoggerUtil.LOG_ENABLED) {
+                        Log.d(CLASSNAME, "initializing read date as create date.");
+                        Log.d(CLASSNAME, "orig cols: [" + cols + "]");
+                        Log.d(CLASSNAME, "temp cols: [" + cols + "]");
+                    }
+
                 }
                 db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from temp_%s", DB_TAB_LISTENTRY, cols,
                         fromCols, DB_TAB_LISTENTRY));
