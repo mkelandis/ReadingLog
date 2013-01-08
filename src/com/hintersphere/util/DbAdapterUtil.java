@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.hintersphere.booklogger.BookLoggerException;
+import com.hintersphere.booklogger.BookLoggerUtil;
 
 /**
  * Utility methods for Android DB Adapters.
@@ -40,8 +41,9 @@ public class DbAdapterUtil {
                 ar = new ArrayList<String>(Arrays.asList(c.getColumnNames()));
             }
         } catch (Exception e) {
-//            Log.v(tableName, e.getMessage(), e);
-            e.printStackTrace();
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.v(tableName, e.getMessage(), e);
+            }
         } finally {
             if (c != null)
                 c.close();

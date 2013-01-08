@@ -6,9 +6,6 @@ package com.hintersphere.booklogger;
  */
 public class BookLoggerException extends RuntimeException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1679088102367439955L;
 
 	public BookLoggerException() {
@@ -26,8 +23,4 @@ public class BookLoggerException extends RuntimeException {
 	public BookLoggerException(Throwable throwable) {
 		super(throwable);
 	}
-
-	
-
-
 }

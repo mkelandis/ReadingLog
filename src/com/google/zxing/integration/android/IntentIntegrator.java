@@ -19,6 +19,8 @@ package com.google.zxing.integration.android;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.hintersphere.booklogger.BookLoggerUtil;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -307,9 +309,13 @@ public final class IntentIntegrator {
       try {
         PACKAGE_SETTER.invoke(intent, PACKAGE);
       } catch (InvocationTargetException ite) {
-//        Log.w(TAG, ite.getTargetException());
+          if (BookLoggerUtil.LOG_ENABLED) {
+              Log.w(TAG, ite.getTargetException());
+          }
       } catch (IllegalAccessException iae) {
-//        Log.w(TAG, iae);
+          if (BookLoggerUtil.LOG_ENABLED) {
+              Log.w(TAG, iae);
+          }
       }
     }
   }

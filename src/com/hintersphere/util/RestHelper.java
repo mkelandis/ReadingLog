@@ -8,6 +8,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.hintersphere.booklogger.BookLoggerUtil;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -35,10 +38,9 @@ public class RestHelper {
 			connection.setUseCaches(true);
 			obj = connection.getContent();
 		} catch (Exception e) {
-			/**
-			 * TODO::Determine appropriate error handling approach
-			 */
-//			Log.e(CLASSNAME, "Could not get HTTP Response from request: [" + requestUrl + "]", e);
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.e(CLASSNAME, "Could not get HTTP Response from request: [" + requestUrl + "]", e);
+            }
 			obj = null;	
 		}	
 

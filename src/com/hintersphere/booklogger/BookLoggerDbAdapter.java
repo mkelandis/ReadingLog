@@ -108,7 +108,9 @@ public class BookLoggerDbAdapter {
                 db.execSQL(DB_CREATE_LISTENTRY);
                 db.setTransactionSuccessful();
             } catch (Exception e) {
-//                Log.e(CLASSNAME, "Exception creating db tables", e);
+                if (BookLoggerUtil.LOG_ENABLED) {
+                    Log.e(CLASSNAME, "Exception creating db tables", e);
+                }
                 throw new BookLoggerException("Exception creating db tables", e);
             } finally {
                 db.endTransaction();
@@ -123,8 +125,9 @@ public class BookLoggerDbAdapter {
          */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//            Log.w(CLASSNAME, "Upgrading database from version " + oldVersion + " to " + newVersion
-//                    + ", which will destroy all old data");
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.w(CLASSNAME, "Upgrading database from version " + oldVersion + " to " + newVersion);
+            }
             db.beginTransaction();
             try {
                 /**
@@ -171,7 +174,9 @@ public class BookLoggerDbAdapter {
 
                 db.setTransactionSuccessful();
             } catch (Exception e) {
-//                Log.e(CLASSNAME, "Exception upgrading db tables", e);
+                if (BookLoggerUtil.LOG_ENABLED) {
+                    Log.e(CLASSNAME, "Exception upgrading db tables", e);
+                }
                 throw new BookLoggerException("Exception upgrading db tables", e);
             } finally {
                 db.endTransaction();
@@ -249,7 +254,9 @@ public class BookLoggerDbAdapter {
             cursor = mDb.query(DB_TAB_BOOKLIST, new String[] { DB_COL_ID, DB_COL_NAME }, DB_WHERE_BOOKLIST,
                     new String[] { String.valueOf(rowid) }, null, null, null);
         } catch (Exception e) {
-//            Log.e(CLASSNAME, "Error fetching booklist for id = " + rowid, e);
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.e(CLASSNAME, "Error fetching booklist for id = " + rowid, e);
+            }
         }
 
         return cursor;
@@ -311,7 +318,9 @@ public class BookLoggerDbAdapter {
         try {
             id = mDb.insert(DB_TAB_LISTENTRY, null, initialValues);
         } catch (Exception e) {
-//            Log.e(CLASSNAME, "Error creating list entry.", e);
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.e(CLASSNAME, "Error creating list entry.", e);
+            }
         }
 
         return id;
@@ -380,8 +389,7 @@ public class BookLoggerDbAdapter {
      */
     public boolean deleteList(long rowId) {
 
-        // first delete the entries (checking return val messes up - legit not
-        // to have rows)
+        // first delete the entries (checking return val messes up - legit not to have rows)
         mDb.delete(DB_TAB_LISTENTRY, DB_COL_LISTID + "=" + rowId, null);
 
         // then delete the list
@@ -400,9 +408,12 @@ public class BookLoggerDbAdapter {
         try {
             cursor = mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB,
                     DB_COL_ACTIVITY, DB_COL_COMMENT, DB_COL_DATEREAD, DB_COL_MINUTES, DB_COL_CREATEDT },
-                    DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) }, null, null, DB_COL_DATEREAD);
+                    DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) }, null, null, DB_COL_DATEREAD + ", "
+                            + DB_COL_CREATEDT);
         } catch (Exception e) {
-//            Log.e(CLASSNAME, "Error fetching list entries by id", e);
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.e(CLASSNAME, "Error fetching list entries by id", e);
+            }
         }
 
         return cursor;
@@ -422,7 +433,9 @@ public class BookLoggerDbAdapter {
                             DB_COL_DATEREAD, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT },
                     DB_WHERE_LISTENTRY, new String[] { String.valueOf(listEntryId) }, null, null, null);
         } catch (Exception e) {
-//            Log.e(CLASSNAME, "Error fetching list entries by id", e);
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.e(CLASSNAME, "Error fetching list entries by id", e);
+            }
             throw new BookLoggerException("Error fetching list entries by id", e);
         }
 

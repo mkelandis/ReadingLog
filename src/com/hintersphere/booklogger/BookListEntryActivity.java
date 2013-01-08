@@ -12,8 +12,6 @@ import android.widget.EditText;
  * @author mlandis
  */
 public class BookListEntryActivity extends Activity {
-
-	private static final String CLASSNAME = BookListEntryActivity.class.getName();
 	
     private EditText mBookTitle;
     private EditText mAuthor;
