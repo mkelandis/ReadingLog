@@ -164,8 +164,8 @@ public class BookLoggerDbAdapter {
                 
                 if (!cols.contains("," + DB_COL_DATEREAD)) {
 
-                    cols.concat(", " + DB_COL_DATEREAD);
-                    fromCols.concat(", " + DB_COL_CREATEDT);
+                    cols = cols.concat(", " + DB_COL_DATEREAD);
+                    fromCols = fromCols.concat(", " + DB_COL_CREATEDT);
                     
                     if (BookLoggerUtil.LOG_ENABLED) {
                         Log.d(CLASSNAME, "initializing read date as create date.");
