@@ -48,3 +48,4 @@ This version adds some prioritized features, which have been requested by Users.
 #### Minor Releases
 
 * Version 1.1.2 (1/7/2013) - Fixed defect causing app crash on db upgrade as part of the 1.1 release.
+* Version 1.1.3 (1/7/2013) - Minimized impact of upgrade to 1.1 (sorting, intitializing date read)
