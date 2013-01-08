@@ -200,7 +200,9 @@ public class BookLoggerActivity extends Activity {
 			        		  mRemoveBookId = Long.MIN_VALUE;			        		  
 			        		  mListEntriesCursorDirty = true;
 			        	  } else {
-//			        		  Log.e(CLASSNAME, "Unable to find id of book to be removed.");
+			        	      if (BookLoggerUtil.LOG_ENABLED) {
+			        	          Log.e(CLASSNAME, "Unable to find id of book to be removed.");
+			        	      }
 			        	  }
 			        	  populateBooks();
 			           }
@@ -212,33 +214,32 @@ public class BookLoggerActivity extends Activity {
 					});
 			dialog = builder.create();			
 			break;
-		case DIALOG_DELETE_LIST:
-			builder.setTitle(R.string.dialog_removelist_title)
-				   .setMessage(R.string.dialog_removelist_instructions)
-			       .setCancelable(true)
-			       .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
-			           public void onClick(DialogInterface dialog, int id) {
-			        	  if (mListId != Long.MIN_VALUE) {
-			        		  mDbHelper.deleteList(mListId);
-			        		  mListId = Long.MIN_VALUE;			        		  
-			        		  mListEntriesCursorDirty = true;
-				        	  populateState();
-				        	  populateBooks();
-			        	  } else {
-			        		  String msg = "Unable to find id of book to be removed.";
-//			        		  Log.e(CLASSNAME, msg);
-			        		  throw new BookLoggerException(msg);
-			        	  }
-			           }
-			       })
-			       .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							dialog.cancel();
-						}
-					});
-			dialog = builder.create();			
-			break;
-		case DIALOG_SWITCH_LIST:
+        case DIALOG_DELETE_LIST:
+            builder.setTitle(R.string.dialog_removelist_title).setMessage(R.string.dialog_removelist_instructions)
+                    .setCancelable(true).setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            if (mListId != Long.MIN_VALUE) {
+                                mDbHelper.deleteList(mListId);
+                                mListId = Long.MIN_VALUE;
+                                mListEntriesCursorDirty = true;
+                                populateState();
+                                populateBooks();
+                            } else {
+                                String msg = "Unable to find id of book to be removed.";
+                                if (BookLoggerUtil.LOG_ENABLED) {
+                                    Log.e(CLASSNAME, msg);
+                                }
+                                throw new BookLoggerException(msg);
+                            }
+                        }
+                    }).setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            dialog = builder.create();
+            break;
+        case DIALOG_SWITCH_LIST:
 			builder.setTitle(R.string.dialog_switchlist_instructions);
 
 			/**
@@ -266,9 +267,11 @@ public class BookLoggerActivity extends Activity {
 							mDbHelper.selectBookList(selectedId);
 							populateState();
 							mListEntriesCursorDirty = true;
-							populateBooks();							
-//							Log.d(CLASSNAME, "Selected: " + selectedId);
-							dialog.dismiss();
+                            populateBooks();
+                            if (BookLoggerUtil.LOG_ENABLED) {
+                                Log.d(CLASSNAME, "Selected: " + selectedId);
+                            }
+                            dialog.dismiss();
 						}
 					});
 			builder.show();
@@ -310,11 +313,13 @@ public class BookLoggerActivity extends Activity {
 				// get the isbn...
 				try {
 					addBookByISBN(scanResult.getContents());
-				} catch (BookNotFoundException e) {
-//					Log.e(CLASSNAME, "Could not find the book: ", e);
-					// prompt for a re-scan
-					showDialog(DIALOG_RESCAN);
-				}
+                } catch (BookNotFoundException e) {
+                    if (BookLoggerUtil.LOG_ENABLED) {
+                        Log.e(CLASSNAME, "Could not find the book: ", e);
+                    }
+                    // prompt for a re-scan
+                    showDialog(DIALOG_RESCAN);
+                }
 				// here we want to ensure the list is refreshed...
 				mListEntriesCursorDirty = true;
 				populateBooks();
@@ -431,13 +436,8 @@ public class BookLoggerActivity extends Activity {
             	// kick off the ad load before we start the send activity...
             	String pubId = getString(R.string.admob_pubid);
             	mInterstitial = new InterstitialAd(this, pubId);
-            	AdRequest adRequest = new AdRequest();
+            	AdRequest adRequest = BookLoggerUtil.createAdRequest();
             	adRequest.setKeywords(keywords);
-            	/**
-            	 * TODO::turn this off...
-            	 */
-//            	adRequest.setTesting(true);
-//            	adRequest.addTestDevice("66AE4425C6895E23FCD3DE8C581FCCD6");
             	mInterstitial.loadAd(adRequest);
             	
             	startActivityForResult(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)),
@@ -604,7 +604,9 @@ public class BookLoggerActivity extends Activity {
 				try {
 					author = volumeInfo.getJSONArray("authors").getString(0);
 				} catch (JSONException e) {
-//					Log.d(CLASSNAME, "Could not find the author in the JSON for isbn: " + isbn, e);
+                    if (BookLoggerUtil.LOG_ENABLED) {
+                        Log.d(CLASSNAME, "Could not find the author in the JSON for isbn: " + isbn, e);
+                    }
 				}
 				
 				String smallThumbnail = "";
@@ -612,7 +614,9 @@ public class BookLoggerActivity extends Activity {
 					JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
 					smallThumbnail = imageLinks.getString("smallThumbnail"); 
 				} catch (JSONException e) {
-//					Log.d(CLASSNAME, "Could not find the smallThumbnail in the JSON for isbn: " + isbn, e);					
+                    if (BookLoggerUtil.LOG_ENABLED) {
+                        Log.d(CLASSNAME, "Could not find the smallThumbnail in the JSON for isbn: " + isbn, e);
+                    }
 				}
 				
 				mDbHelper.createListEntry(mListId.longValue(), title, author, smallThumbnail, isbn,
@@ -621,7 +625,9 @@ public class BookLoggerActivity extends Activity {
 		} catch (JSONException e) {
 			String msg = "Could not process JSON for isbn: [" + isbn + "], JSON: [" + jsonObject
 					+ "]";
-//			Log.e(CLASSNAME, msg, e);
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.e(CLASSNAME, msg, e);
+            }
 			throw new BookNotFoundException(msg, e);
 		}
 	}
@@ -654,8 +660,9 @@ public class BookLoggerActivity extends Activity {
 		setListAdapter(books);
         
 		// log the cursor for now
-//		Log.d(CLASSNAME, "*************\n" + DatabaseUtils.dumpCursorToString(cursor)
-//				+ "*************\n");
+        if (BookLoggerUtil.LOG_ENABLED) {
+            Log.d(CLASSNAME, "*************\n" + DatabaseUtils.dumpCursorToString(cursor) + "*************\n");
+        }
 	}
 	
 	

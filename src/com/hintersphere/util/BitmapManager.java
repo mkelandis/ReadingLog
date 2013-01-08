@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.hintersphere.booklogger.BookLoggerUtil;
+
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
@@ -73,7 +76,9 @@ public enum BitmapManager {
                         imageView.setImageBitmap((Bitmap) msg.obj);
                     } else {
                         imageView.setImageBitmap(placeholder);
-//                        Log.d(null, "fail " + url);
+                        if (BookLoggerUtil.LOG_ENABLED) {
+                            Log.d(null, "fail " + url);
+                        }
                     }
                 }
             }
@@ -85,8 +90,9 @@ public enum BitmapManager {
                 final Bitmap bmp = downloadBitmap(url);
                 Message message = Message.obtain();
                 message.obj = bmp;
-//                Log.d(null, "Item downloaded: " + url);
-
+                if (BookLoggerUtil.LOG_ENABLED) {
+                    Log.d(null, "Item downloaded: " + url);
+                }
                 handler.sendMessage(message);
             }
         });
@@ -99,7 +105,9 @@ public enum BitmapManager {
 
         // check in UI thread, so no concurrency issues
         if (bitmap != null) {
-//            Log.d(null, "Item loaded from cache: " + url);
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.d(null, "Item loaded from cache: " + url);
+            }
             imageView.setImageBitmap(bitmap);
         } else {
             imageView.setImageBitmap(placeholder);

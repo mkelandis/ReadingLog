@@ -8,8 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class BookListEditActivity extends Activity {
-
-	private static final String CLASSNAME = BookListEditActivity.class.getName();
 	
     private EditText mListName;
     private Long mRowId;
@@ -122,9 +120,6 @@ public class BookListEditActivity extends Activity {
 
 	private void saveState() {
     	
-    	/**
-    	 * TODO::we may need to handle the back button in the same manner
-    	 */
     	if (mIsCanceled) {
     		return;
     	}
