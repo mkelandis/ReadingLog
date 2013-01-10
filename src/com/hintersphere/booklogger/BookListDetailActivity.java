@@ -204,7 +204,11 @@ public class BookListDetailActivity extends FragmentActivity {
     }
     
     private void trackProgress(int minutes) {
-        mMinutesDisplayed.setText(BookLoggerUtil.formatMinutes(minutes));
+        if (minutes == 0) {
+            mMinutesDisplayed.setText(R.string.detail_hint_minutes);            
+        } else {
+            mMinutesDisplayed.setText(BookLoggerUtil.formatMinutes(minutes));
+        }
         mMinutes = minutes;
     }
 }
