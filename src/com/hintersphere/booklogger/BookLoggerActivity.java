@@ -619,8 +619,8 @@ public class BookLoggerActivity extends Activity {
                     }
 				}
 				
-				mDbHelper.createListEntry(mListId.longValue(), title, author, smallThumbnail, isbn,
-						BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ, -1, -1);
+                mDbHelper.createListEntry(mListId.longValue(), title, author, smallThumbnail, isbn, ReadBy.ME.id, -1,
+                        -1);
 			}
 		} catch (JSONException e) {
 			String msg = "Could not process JSON for isbn: [" + isbn + "], JSON: [" + jsonObject
