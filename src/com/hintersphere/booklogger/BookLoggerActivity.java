@@ -313,6 +313,10 @@ public class BookLoggerActivity extends Activity {
 				// get the isbn...
 				try {
 					addBookByISBN(scanResult.getContents());
+
+					// here we want to ensure the list is refreshed...
+	                mListEntriesCursorDirty = true;
+	                populateBooks();
                 } catch (BookNotFoundException e) {
                     if (BookLoggerUtil.LOG_ENABLED) {
                         Log.e(CLASSNAME, "Could not find the book: ", e);
@@ -320,9 +324,6 @@ public class BookLoggerActivity extends Activity {
                     // prompt for a re-scan
                     showDialog(DIALOG_RESCAN);
                 }
-				// here we want to ensure the list is refreshed...
-				mListEntriesCursorDirty = true;
-				populateBooks();
 			} else {
 				// prompt for a re-scan
 				showDialog(DIALOG_RESCAN);
