@@ -95,7 +95,11 @@ public class RestHelper {
 	 */
 	public static JSONObject getJson(String url) throws JSONException {		
 		// build JSON Object
-		return new JSONObject(getBody(url));
+	    String body = getBody(url);
+	    if (body == null) {
+	        return null;
+	    }
+		return new JSONObject(body);
 	}
 	
 	

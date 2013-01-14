@@ -585,8 +585,11 @@ public class BookLoggerActivity extends Activity {
 		    
 		    try {
 		        jsonObject = future.get();
+		        if (jsonObject == null) {
+	                throw new BookNotFoundException("jsonObject returned from thread is null.");
+		        }
 		    } catch (Exception e) { 
-		        throw new BookLoggerException("Error while executing thread to retrieve JSON.", e);
+		        throw new BookNotFoundException("Error while executing thread to retrieve JSON.", e);
 		    }
 		    
 			JSONArray items = jsonObject.getJSONArray("items");

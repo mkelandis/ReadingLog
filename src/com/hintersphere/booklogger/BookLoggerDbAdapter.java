@@ -66,7 +66,7 @@ public class BookLoggerDbAdapter {
     private static final String DB_CREATE_BOOKLIST = "create table if not exists " + DB_TAB_BOOKLIST + " ("
             + DB_COL_ID + " integer primary key autoincrement, " 
             + DB_COL_NAME + " text not null, " 
-            + DB_COL_PREFS + " text not null, " 
+            + DB_COL_PREFS + " text null, " 
             + DB_COL_PRIORITY + " integer not null);";
     private static final String DB_CREATE_LISTENTRY = "create table if not exists " + DB_TAB_LISTENTRY + " ("
             + DB_COL_ID + " integer primary key autoincrement, " 
