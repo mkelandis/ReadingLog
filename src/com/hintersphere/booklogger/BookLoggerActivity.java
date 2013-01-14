@@ -313,6 +313,10 @@ public class BookLoggerActivity extends Activity {
 				// get the isbn...
 				try {
 					addBookByISBN(scanResult.getContents());
+
+					// here we want to ensure the list is refreshed...
+	                mListEntriesCursorDirty = true;
+	                populateBooks();
                 } catch (BookNotFoundException e) {
                     if (BookLoggerUtil.LOG_ENABLED) {
                         Log.e(CLASSNAME, "Could not find the book: ", e);
@@ -320,9 +324,6 @@ public class BookLoggerActivity extends Activity {
                     // prompt for a re-scan
                     showDialog(DIALOG_RESCAN);
                 }
-				// here we want to ensure the list is refreshed...
-				mListEntriesCursorDirty = true;
-				populateBooks();
 			} else {
 				// prompt for a re-scan
 				showDialog(DIALOG_RESCAN);
@@ -585,8 +586,11 @@ public class BookLoggerActivity extends Activity {
 		    
 		    try {
 		        jsonObject = future.get();
+		        if (jsonObject == null) {
+	                throw new BookNotFoundException("jsonObject returned from thread is null.");
+		        }
 		    } catch (Exception e) { 
-		        throw new BookLoggerException("Error while executing thread to retrieve JSON.", e);
+		        throw new BookNotFoundException("Error while executing thread to retrieve JSON.", e);
 		    }
 		    
 			JSONArray items = jsonObject.getJSONArray("items");
@@ -619,8 +623,8 @@ public class BookLoggerActivity extends Activity {
                     }
 				}
 				
-				mDbHelper.createListEntry(mListId.longValue(), title, author, smallThumbnail, isbn,
-						BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ, -1, -1);
+                mDbHelper.createListEntry(mListId.longValue(), title, author, smallThumbnail, isbn, ReadBy.ME.id, -1,
+                        -1);
 			}
 		} catch (JSONException e) {
 			String msg = "Could not process JSON for isbn: [" + isbn + "], JSON: [" + jsonObject

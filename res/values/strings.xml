@@ -7,7 +7,7 @@
     <string name="dialog_firstTime_title">Welcome to ReadingLog!</string>
     <string name="dialog_firstTime_instructions">Scan a book\'s barcode to get started.</string>
     <string name="dialog_rescan_title">Sorry, I couldn\'t find it&#8230;</string>
-    <string name="dialog_rescan_instructions">Please check the inside cover of the book for a different barcode, and re-scan. Click cancel to enter the book information yourself.</string>
+    <string name="dialog_rescan_instructions">Please check the inside cover of the book for a different barcode, and re-scan.\n\nThis function loads book data from Google Books API, make sure a data connection is active.\n\nTouch cancel to enter the book information yourself.</string>
     <string name="dialog_removebook_title">Remove Book</string>
     <string name="dialog_removebook_instructions">Are you sure you want to remove this book?</string>
   	<string name="dialog_removelist_title">Remove Log</string>

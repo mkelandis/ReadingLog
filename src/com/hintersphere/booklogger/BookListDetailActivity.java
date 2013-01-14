@@ -84,7 +84,7 @@ public class BookListDetailActivity extends FragmentActivity {
             mMinutesSeekbar.setProgress(listentry.getInt(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES)));
             
             mSelectedReadBy = listentry.getShort(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY));
-            mReadBySpinner.setSelection((int) mSelectedReadBy);
+            mReadBySpinner.setSelection(ReadBy.getDisplayPosition(mSelectedReadBy));
 
             mComment.setText(listentry.getString(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_COMMENT)));
             
@@ -186,7 +186,7 @@ public class BookListDetailActivity extends FragmentActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 // the position should reflect the code for the Read Activity...
-                mSelectedReadBy = (short) pos;
+                mSelectedReadBy = ReadBy.displayPositions[pos].id;
             }
 
             @Override

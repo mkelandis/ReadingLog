@@ -103,14 +103,14 @@ public class BookLoggerHtmlAdapter {
                         "center");
 				cell(writer, booktitle);
 			    cell(writer, author);
-				switch (cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))) {
-				case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_READ:
+				switch (ReadBy.getById[cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY))]) {
+				case CHILD:
 					cell(writer, mCtx.getString(R.string.context_menu_childread));
 					break;
-				case BookLoggerDbAdapter.DB_ACTIVITY_PARENT_READ:
+				case PARENT:
 					cell(writer, mCtx.getString(R.string.context_menu_parentread));
 					break;
-				case BookLoggerDbAdapter.DB_ACTIVITY_CHILD_PARENT_READ:
+				case CHILD_PARENT:
 					cell(writer, mCtx.getString(R.string.context_menu_parentchildread));
 					break;
 				}
