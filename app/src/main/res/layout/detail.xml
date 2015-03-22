@@ -1,82 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-    
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"        
-        android:layout_marginTop="5dp"        
-        android:layout_marginLeft="5dp"                
-        android:text="@string/detail_label_date" />
+    android:layout_height="fill_parent">
 
-    <TextView
-        android:id="@+id/entry_read_date"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="10dp"
-        android:clickable="true"
-        android:onClick="showReadDatePickerDialog"
-        android:textSize="28sp" />
+    <ScrollView android:id="@+id/ScrlView" android:layout_width="fill_parent" android:layout_height="fill_parent" >
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"        
-        android:layout_marginLeft="5dp"                
-        android:text="@string/detail_label_minutes" />
-	
-    <TextView
-    	android:id="@+id/minutes"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="10dp"
-        android:hint="@string/detail_hint_minutes"
-        android:textSize="28sp"/>
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <SeekBar 
-	    android:id="@+id/entry_minutes_seekbar"
-    	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_marginLeft="40dp"
-    	android:layout_marginRight="10dp"/>	    
-	    
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"	
-        android:layout_marginTop="25dp"                        
-        android:layout_marginLeft="5dp"                
-        android:text="@string/detail_label_activity" />
-    
-	<Spinner
-    	android:id="@+id/entry_activity_spinner"
-    	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_marginTop="10dp"    	
-    	android:layout_marginLeft="37dp"
-    	android:layout_marginRight="9dp"/>
-    
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"                
-        android:layout_marginLeft="3dp"                
-        android:text="@string/detail_label_comment" />
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="bold"
+                android:text="@string/detail_label_date" />
 
-    <EditText
-        android:id="@+id/entry_comment"
-        android:layout_width="fill_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1"
-        android:layout_marginTop="12dp"
-        android:layout_marginLeft="37dp"
-        android:layout_marginRight="12dp"
-        android:inputType="textMultiLine"
-        android:scrollbars="vertical"
-        android:hint="@string/detail_hint_comment" />
-        
+            <TextView
+                android:id="@+id/entry_read_date"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="10dp"
+                android:clickable="true"
+                android:onClick="showReadDatePickerDialog"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="bold"
+                android:text="@string/detail_label_minutes" />
+
+            <TextView
+                android:id="@+id/minutes"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="10dp"
+                android:hint="@string/detail_hint_minutes"
+                android:textSize="18sp"/>
+
+            <SeekBar
+                android:id="@+id/entry_minutes_seekbar"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="10dp"/>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="bold"
+                android:text="@string/detail_label_activity" />
+
+            <Spinner
+                android:id="@+id/entry_activity_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="37dp"
+                android:layout_marginRight="9dp"/>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:layout_marginLeft="3dp"
+                android:textStyle="bold"
+                android:text="@string/detail_label_comment" />
+
+            <EditText
+                android:id="@+id/entry_comment"
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="1"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="37dp"
+                android:layout_marginRight="12dp"
+                android:inputType="textMultiLine"
+                android:scrollbars="vertical"
+                android:hint="@string/detail_hint_comment" />
+            </LinearLayout>
+    </ScrollView>
 </LinearLayout>

@@ -8,7 +8,22 @@ should evaluate whether these are still needed in your project and if
 so manually move them:
 
 * .gitignore
+* .idea/
+* .idea/.name
+* .idea/compiler.xml
+* .idea/copyright/
+* .idea/copyright/profiles_settings.xml
+* .idea/encodings.xml
+* .idea/libraries/
+* .idea/libraries/libs.xml
+* .idea/misc.xml
+* .idea/modules.xml
+* .idea/scopes/
+* .idea/scopes/scope_settings.xml
+* .idea/vcs.xml
+* .idea/workspace.xml
 * README.md
+* ReadingLog.iml
 * scripts/
 * scripts/devices
 * scripts/droidprep
@@ -47,5 +62,5 @@ it is due to a bug or limitation of the Eclipse to Gradle importer,
 please file a bug at http://b.android.com with category
 Component-Tools.
 
-(This import summary is for your information only, and can be deleted
+    (This import summary is for your information only, and can be deleted
 after import once you are satisfied with the results.)

@@ -3,7 +3,7 @@
     <string name="hello">Hello World, BookLoggerActivity!</string>
     <string name="app_name">ReadingLog</string>
     <string name="empty_list">Log is empty</string>    
-    <string name="default_list_name">My Reading Log</string>    
+    <string name="default_list_name">My Log</string>
     <string name="dialog_firstTime_title">Welcome to ReadingLog!</string>
     <string name="dialog_firstTime_instructions">Scan a book\'s barcode to get started.</string>
     <string name="dialog_rescan_title">Sorry, I couldn\'t find it&#8230;</string>
@@ -44,8 +44,8 @@
     <string name="button_add_book">Scan Book</string>
     <string name="content_desc_bookthumb">Book Thumbnail</string>    
     <string name="title_delim">-</string>
-    <string name="title_books_plural">Books</string>
-    <string name="title_books_singular">Book</string>
+    <string name="title_books_plural">books</string>
+    <string name="title_books_singular">book</string>
     <string name="pdf_eml_extratext">Your reading log is attached.</string>
     <string name="pdf_eml_intenttitle">Email the Log.</string>
     <string name="pdf_doc_keywords">Reading Log Android Books Log School Parents</string>    
