@@ -1,2 +1,0 @@
-#!/bin/bash
-~/adt/sdk/platform-tools/adb devices
