@@ -41,8 +41,8 @@ public class BookListEditActivity extends Activity {
 		
         saveButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View view) {
-        	    setResult(RESULT_OK);
-        	    finish();
+            setResult(RESULT_OK);
+            finish();
         	}
         });
         
@@ -53,13 +53,13 @@ public class BookListEditActivity extends Activity {
         	 * of the basic android sample code examples)
         	 */
         	public void onClick(View view) {
-        		mIsCanceled = true;
-        	    if (mIsCreatedThisTime && mRowId != null && mRowId.longValue() > 0) {
-        	    	mDbHelper.deleteList(mRowId);
-        	    }
-        	    setResult(RESULT_CANCELED);
-        	    finish();
-        	}
+            mIsCanceled = true;
+            if (mIsCreatedThisTime && mRowId != null && mRowId.longValue() > 0) {
+                mDbHelper.deleteList(mRowId);
+            }
+            setResult(RESULT_CANCELED);
+            finish();
+        }
         });		
         mIsCanceled = false;
     }

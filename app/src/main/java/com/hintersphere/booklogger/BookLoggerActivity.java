@@ -40,6 +40,7 @@ import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.ads.AdRequest;
 import com.google.ads.InterstitialAd;
@@ -79,15 +80,6 @@ public class BookLoggerActivity extends Activity {
     private static final int ACTIVITY_SEND_LIST = 2;
     private static final int ACTIVITY_DETAILS = 3;
     
-    // options menu stuff
-    private static final int ADDBOOK_ID = Menu.FIRST;
-    private static final int NEWLIST_ID = Menu.FIRST + 1;    
-    private static final int EDITLIST_ID = Menu.FIRST + 2;    
-    private static final int SWITCHLIST_ID = Menu.FIRST + 3;    
-    private static final int SENDLIST_ID = Menu.FIRST + 4;    
-    private static final int DELETELIST_ID = Menu.FIRST + 5;    
-    private static final int NEWENTRY_ID = Menu.FIRST + 6;    
-
     private BookLoggerDbAdapter mDbHelper;
 
     // currently selected list (Google's coding standard uses "m" prefixed instance variables)
@@ -129,19 +121,10 @@ public class BookLoggerActivity extends Activity {
         populateBooks();
 
         // handle first timers (create a default list and prompt for a scan)
-        doFirstTimeUser(); 
-        
+        doFirstTimeUser();
         registerForContextMenu(getListView());
-        
-        //  handle add button
-		Button addButton = (Button) findViewById(R.id.add_book);
-		addButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				IntentIntegrator.initiateScan(BookLoggerActivity.this);
-			}
-		});
 	}
-    
+
 	@Override
 	protected Dialog onCreateDialog(int id) {
 
@@ -362,7 +345,7 @@ public class BookLoggerActivity extends Activity {
     protected void onResume() {
         super.onResume();
         populateState();
-    }    
+    }
     
     @Override
 	protected void onDestroy() {
@@ -376,38 +359,32 @@ public class BookLoggerActivity extends Activity {
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-        menu.add(0, ADDBOOK_ID, 0, R.string.options_menu_addbook);
-        menu.add(0, NEWENTRY_ID, 0, R.string.options_menu_newentry);
-        menu.add(0, SENDLIST_ID, 0, R.string.options_menu_sendlist);
-        menu.add(0, SWITCHLIST_ID, 0, R.string.options_menu_switchlist);
-        menu.add(0, NEWLIST_ID, 0, R.string.options_menu_newlist);
-        menu.add(0, EDITLIST_ID, 0, R.string.options_menu_editlist);
-        menu.add(0, DELETELIST_ID, 0, R.string.options_menu_deletelist);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.mainmenu, menu);
         return true;
     }
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch(item.getItemId()) {
-            case ADDBOOK_ID:
+            case R.id.mainmenu_addbook:
             	IntentIntegrator.initiateScan(BookLoggerActivity.this);
                 return true;
-            case NEWLIST_ID:
+            case R.id.mainmenu_newlist:
             	Intent intent = new Intent(this, BookListEditActivity.class);
             	startActivityForResult(intent, ACTIVITY_EDIT_LIST);            	
             	// ensure the list is pulled again
             	mListEntriesCursorDirty = true;            	
             	return true;
-            case EDITLIST_ID:
+            case R.id.mainmenu_editlist:
                 intent = new Intent(this, BookListEditActivity.class);
                 intent.putExtra(BookLoggerDbAdapter.DB_COL_ID, mListId);
                 startActivityForResult(intent, ACTIVITY_EDIT_LIST);
             	return true;
-            case SWITCHLIST_ID:
+            case R.id.mainmenu_switchlist:
             	showDialog(DIALOG_SWITCH_LIST);
             	return true;
-            case SENDLIST_ID:            	
+            case R.id.mainmenu_sendlist:
             	// need a cursor to make a pdf
             	Cursor cursor = getListEntriesCursor();
             	
@@ -444,10 +421,10 @@ public class BookLoggerActivity extends Activity {
             	startActivityForResult(Intent.createChooser(intent, getString(R.string.pdf_eml_intenttitle)),
                     ACTIVITY_SEND_LIST);
             	return true;
-            case DELETELIST_ID:
+            case R.id.mainmenu_deletelist:
             	showDialog(DIALOG_DELETE_LIST);
             	return true;
-            case NEWENTRY_ID:
+            case R.id.mainmenu_newentry:
                 intent = new Intent(this, BookListEntryActivity.class);
                 intent.putExtra(BookLoggerDbAdapter.DB_COL_LISTID, mListId);
                 startActivityForResult(intent, ACTIVITY_NEW_ENTRY);
@@ -649,16 +626,19 @@ public class BookLoggerActivity extends Activity {
 
 		Cursor cursor = getListEntriesCursor();
         startManagingCursor(cursor);
-        
-        int count = cursor.getCount();
-        if (count == 1) {
-			setTitle(mListName + " " + getString(R.string.title_delim) + " " + cursor.getCount()
-					+ " " + getString(R.string.title_books_singular));
+
+        setTitle(mListName);
+
+        // use a toast to display the book count...
+        if (cursor.getCount() == 1) {
+            Toast.makeText(getApplicationContext(),
+                    cursor.getCount() + " " + getString(R.string.title_books_singular), Toast.LENGTH_LONG).show();
         } else {
-			setTitle(mListName + " " + getString(R.string.title_delim) + " " + cursor.getCount()
-					+ " " + getString(R.string.title_books_plural));        	
+            Toast.makeText(getApplicationContext(),
+                    cursor.getCount() + " " + getString(R.string.title_books_plural), Toast.LENGTH_LONG).show();
         }
-        
+
+
 		// Now create a simple cursor adapter and set it to display
 		CursorAdapter books = new BookListCursorAdapter(this, cursor);
 		setListAdapter(books);
