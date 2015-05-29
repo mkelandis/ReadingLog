@@ -25,6 +25,11 @@ Note: An advert may display after sending the log.
 
 Release Notes
 -------------
+### Version 1.2 (4/17/2015)
+* Upgraded to latest Android Menu Strategy to better support latest Android OS versions.
+* Fixed NPE when loading JSON.
+* Displays "time not tracked" instead of "0 minutes".
+* Adds new default "Read By" metric: "Read By Me".
 
 ### Version 1.1 (1/7/2013)
 
