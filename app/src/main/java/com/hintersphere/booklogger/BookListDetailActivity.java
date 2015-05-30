@@ -22,9 +22,12 @@ import com.hintersphere.util.DbAdapterUtil;
 
 public class BookListDetailActivity extends FragmentActivity {
 
-    private static final int MAX_MINUTES = 3 * 60;
-    private static final int ROUNDING_INCREMENT_MINS = 5;
-    
+    private static final int MAX_MINUTES = 6 * 60;
+    private static final int MAX_PAGES_READ = 300;
+    public static final int ONE_MINUTE = 1;
+    public static final int FIVE_MINUTES = 5;
+    public static final int FIFTEEN_MINUTES = 15;
+
     private BookLoggerDbAdapter mDbHelper;
     private Long mRowId;
     
@@ -33,9 +36,11 @@ public class BookListDetailActivity extends FragmentActivity {
     private TextView mMinutesDisplayed;
     private SeekBar mMinutesSeekbar;
     private Spinner mReadBySpinner;
+    private Spinner mPagesReadSpinner;
     private TextView mComment;
 
     private int mMinutes;
+    private int mPagesRead;
     private short mSelectedReadBy;
     private String mReadDateUtc;
     
@@ -57,7 +62,8 @@ public class BookListDetailActivity extends FragmentActivity {
         mReadDate = (TextView) findViewById(R.id.entry_read_date);
         mMinutesDisplayed = (TextView) findViewById(R.id.minutes);
         mMinutesSeekbar = getMinutesSeekBar(); 
-        mReadBySpinner = getReadActivitySpinner(); 
+        mPagesReadSpinner = getPagesReadSpinner();
+        mReadBySpinner = getReadActivitySpinner();
         mComment = (EditText) findViewById(R.id.entry_comment);
         
         populateFields();
@@ -80,9 +86,12 @@ public class BookListDetailActivity extends FragmentActivity {
             
             mReadDateUtc = listentry.getString(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD)); 
             mReadDate.setText(DbAdapterUtil.getDateInUserFormat(mReadDateUtc, this));
- 
             mMinutesSeekbar.setProgress(listentry.getInt(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES)));
-            
+
+
+            mPagesReadSpinner.setSelection(
+                    listentry.getInt(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_PAGESREAD)));
+
             mSelectedReadBy = listentry.getShort(listentry.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY));
             mReadBySpinner.setSelection(ReadBy.getDisplayPosition(mSelectedReadBy));
 
@@ -146,7 +155,7 @@ public class BookListDetailActivity extends FragmentActivity {
     
     private void saveState() {        
         BookLoggerUtil.throwIfMissing(mRowId, "row id missing");
-        mDbHelper.updateBookEntry(mRowId, mMinutes, mSelectedReadBy, mComment.getText().toString());
+        mDbHelper.updateBookEntry(mRowId, mMinutes, mSelectedReadBy, mComment.getText().toString(), mPagesRead);
     }
     
     private SeekBar getMinutesSeekBar() {
@@ -159,16 +168,50 @@ public class BookListDetailActivity extends FragmentActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 trackProgress(roundProgress(progress));
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 // nothing to do here.
             }
+
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 seekBar.setSecondaryProgress(seekBar.getProgress());
-            }        
+            }
         });
         return minutesSeekBar;
+    }
+
+    private Spinner getPagesReadSpinner() {
+        Spinner pagesReadSpinner = (Spinner) findViewById(R.id.entry_pagesread_spinner);
+
+        // backing array of values
+        String[] pages = new String[MAX_PAGES_READ + 1];
+        pages[0] = this.getString(R.string.detail_hint_pagesread);
+        for (int i=1;i <= MAX_PAGES_READ; i++) {
+            pages[i] = String.valueOf(i);
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, pages);
+        pagesReadSpinner.setAdapter(adapter);
+
+        pagesReadSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                // the position should reflect the number of pages read...
+                mPagesRead = pos;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // do nothing
+            }
+
+        });
+
+
+        return pagesReadSpinner;
     }
     
     private Spinner getReadActivitySpinner() {
@@ -199,8 +242,26 @@ public class BookListDetailActivity extends FragmentActivity {
         return activitySpinner;
     }
 
+    /**
+     * Rounding Increment is variable:
+     * less than 30 mins -- 1 min
+     * 30 > minutes > 3 hours -- 5 min
+     * > 3 hours -- 15 min
+     *
+     * @param progress
+     * @return
+     */
     private int roundProgress(int progress) {
-        return (progress + (ROUNDING_INCREMENT_MINS - 1)) / ROUNDING_INCREMENT_MINS * ROUNDING_INCREMENT_MINS;
+
+        // rounding increment is variable based on number of minutes
+        int roundingIncrement = ONE_MINUTE;
+        if (progress > 30 && progress < 180) {
+            roundingIncrement = FIVE_MINUTES;
+        } else if (progress >= 180) {
+            roundingIncrement = FIFTEEN_MINUTES;
+        }
+
+        return (progress + (roundingIncrement - 1)) / roundingIncrement * roundingIncrement;
     }
     
     private void trackProgress(int minutes) {

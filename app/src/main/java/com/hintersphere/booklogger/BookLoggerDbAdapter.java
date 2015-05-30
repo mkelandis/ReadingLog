@@ -364,11 +364,13 @@ public class BookLoggerDbAdapter {
      * @param minutes spent reading to be updated
      * @param readBy person who read the book (parent/child/together)
      * @param comment to be updated
+     * @param pagesRead number of pages read
      * @return true or false if the update failed.
      */
-    public boolean updateBookEntry(long rowId, int minutes, short readBy, String comment) {
+    public boolean updateBookEntry(long rowId, int minutes, short readBy, String comment, int pagesRead) {
         ContentValues args = new ContentValues();
         args.put(DB_COL_MINUTES, minutes);
+        args.put(DB_COL_PAGESREAD, pagesRead);
         args.put(DB_COL_ACTIVITY, readBy);
         args.put(DB_COL_COMMENT, comment);
         return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
@@ -446,7 +448,8 @@ public class BookLoggerDbAdapter {
         try {
             cursor = mDb.query(DB_TAB_LISTENTRY,
                     new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB, DB_COL_ACTIVITY,
-                            DB_COL_DATEREAD, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT },
+                            DB_COL_DATEREAD, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT,
+                            DB_COL_PAGESREAD },
                     DB_WHERE_LISTENTRY, new String[] { String.valueOf(listEntryId) }, null, null, null);
         } catch (Exception e) {
             if (BookLoggerUtil.LOG_ENABLED) {

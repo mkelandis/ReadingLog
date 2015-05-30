@@ -72,5 +72,7 @@
     <string name="detail_label_activity">Who Read This?:</string>
     <string name="detail_label_comment">Comment:</string>
     <string name="detail_hint_minutes">time not tracked</string>
+    <string name="detail_hint_pagesread">count not tracked</string>
     <string name="detail_hint_comment">enter a comment</string>
+    <string name="detail_label_pagesread">Pages Read:</string>
 </resources>
