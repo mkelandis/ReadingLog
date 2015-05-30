@@ -626,7 +626,6 @@ public class BookLoggerActivity extends Activity {
 
 		Cursor cursor = getListEntriesCursor();
         startManagingCursor(cursor);
-
         setTitle(mListName);
 
         // use a toast to display the book count...
