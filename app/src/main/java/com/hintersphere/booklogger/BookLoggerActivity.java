@@ -410,7 +410,7 @@ public class BookLoggerActivity extends Activity {
 
                 CsvReportAdapter csvAdapter = new CsvReportAdapter(this);
                 cursor.moveToPosition(-1);
-                File csvFile = csvAdapter.makeCsv(cursor);
+                File csvFile = csvAdapter.makeCsv(title, cursor);
 
                 intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 

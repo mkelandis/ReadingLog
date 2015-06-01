@@ -32,7 +32,7 @@ public class BookLoggerHtmlAdapter extends ReportAdapter {
 			totalPages = statsCursor.getInt(1);
 		}
 
-		File outputFile = getOutputFile("readinglog.html");
+		File outputFile = getOutputFile(title + ".html");
 		Writer writer = null;
 		try {
 		    writer = new BufferedWriter(new FileWriter(outputFile));
