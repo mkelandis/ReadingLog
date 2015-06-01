@@ -461,7 +461,7 @@ public class BookLoggerDbAdapter {
     public Cursor fetchListStats(long listid) {
         try {
             return mDb.rawQuery("SELECT SUM(" + DB_COL_MINUTES + "), SUM(" + DB_COL_PAGESREAD + ") FROM "
-                            + DB_TAB_LISTENTRY + " " + DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) });
+                            + DB_TAB_LISTENTRY + " WHERE " + DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) });
         } catch (Exception e) {
             if (BookLoggerUtil.LOG_ENABLED) {
                 Log.e(CLASSNAME, "Error fetching list entries by id", e);

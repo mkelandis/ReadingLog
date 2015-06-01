@@ -5,25 +5,30 @@
 	android:orientation="horizontal" android:padding="0dp" android:paddingRight="0dp" 
 	android:gravity="center_vertical">
 
-	<ImageView android:id="@+id/bookthumb" android:layout_width="wrap_content"
-		android:gravity="center_vertical" android:layout_height="wrap_content"
-		android:layout_marginTop="1dp" 
-		android:layout_marginRight="5dp" 
-		android:layout_marginLeft="5dp" 
-		android:contentDescription="@string/content_desc_bookthumb"/>
+	<ImageView android:id="@+id/bookthumb"
+			   android:layout_width="wrap_content"
+			   android:gravity="center_vertical"
+			   android:layout_height="wrap_content"
+			   android:layout_marginTop="1dp"
+			   android:layout_marginRight="5dp"
+			   android:layout_marginBottom="1dp"
+			   android:layout_marginLeft="5dp"
+			   android:contentDescription="@string/content_desc_bookthumb"/>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:orientation="vertical" android:gravity="center_vertical">
 
 		<TextView android:id="@+id/title"
-			xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="wrap_content" android:layout_height="wrap_content" 
-			android:textStyle="bold" />
+				  xmlns:android="http://schemas.android.com/apk/res/android"
+				  android:layout_width="wrap_content"
+				  android:layout_height="wrap_content"
+				  android:textStyle="bold" />
 
 		<TextView android:id="@+id/author"
-			xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="wrap_content" android:layout_height="wrap_content" />
+				  xmlns:android="http://schemas.android.com/apk/res/android"
+				  android:layout_width="wrap_content"
+				  android:layout_height="wrap_content" />
 
 		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 					  android:layout_width="wrap_content"
@@ -35,15 +40,21 @@
 
 			<TextView android:id="@+id/read_date"
 					  xmlns:android="http://schemas.android.com/apk/res/android"
-					  android:layout_width="wrap_content" android:layout_height="wrap_content" />
+					  android:layout_width="wrap_content"
+					  android:layout_height="wrap_content"
+					  android:textStyle="italic" />
 
 			<TextView android:id="@+id/pages_read"
 					  xmlns:android="http://schemas.android.com/apk/res/android"
-					  android:layout_width="wrap_content" android:layout_height="wrap_content" />
+					  android:layout_width="wrap_content"
+					  android:layout_height="wrap_content"
+					  android:textStyle="italic" />
 
 			<TextView android:id="@+id/minutes"
 					  xmlns:android="http://schemas.android.com/apk/res/android"
-					  android:layout_width="wrap_content" android:layout_height="wrap_content" />
+					  android:layout_width="wrap_content"
+					  android:layout_height="wrap_content"
+					  android:textStyle="italic" />
 
 		</LinearLayout>
 	</LinearLayout>

@@ -127,7 +127,7 @@ public class BookListCursorAdapter extends CursorAdapter {
 		int minutes = mCur.getInt(mColIdxMinutes);
 		switch (minutes) {
 			case 0: return "";
-			case 1: return ", 1 min";
+			case 1: return ", " + BookLoggerUtil.formatMinutes(1) + " min";
 			default: return ", " + BookLoggerUtil.formatMinutes(minutes) + " mins";
 		}
 	}
