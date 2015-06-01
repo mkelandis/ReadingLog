@@ -26,7 +26,9 @@ public class BookListCursorAdapter extends CursorAdapter {
 	private int mColIdxTitle;
 	private int mColIdxAuthor;
 	private int mColIdxReadDate;
-	private int mColIdxThumb;	
+	private int mColIdxThumb;
+	private int mColIdxMinutes;
+	private int mColIdxPagesRead;
 	private Cursor mCur;
 	private Context mParentContext;
 
@@ -35,6 +37,8 @@ public class BookListCursorAdapter extends CursorAdapter {
 		TextView title = null;
 		TextView author = null;
 		TextView readDate = null;
+		TextView minutes = null;
+		TextView pagesRead = null;
 		ImageView thumbnail = null;
 	}
 		
@@ -45,6 +49,8 @@ public class BookListCursorAdapter extends CursorAdapter {
 		mColIdxAuthor = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR);
 		mColIdxReadDate = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD);
 		mColIdxThumb = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB);
+		mColIdxMinutes = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES);
+		mColIdxPagesRead = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_PAGESREAD);
 		mCur = cursor;
 		init(context);
 		mParentContext = context;
@@ -57,6 +63,8 @@ public class BookListCursorAdapter extends CursorAdapter {
 		mColIdxAuthor = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR);
         mColIdxReadDate = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD);
 		mColIdxThumb = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_THUMB);
+		mColIdxMinutes = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES);
+		mColIdxPagesRead = cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_PAGESREAD);
 		mCur = cursor;
 		init(context);
         mParentContext = context;
@@ -81,6 +89,8 @@ public class BookListCursorAdapter extends CursorAdapter {
             viewHolder.title = (TextView) convertView.findViewById(R.id.title);
             viewHolder.author = (TextView) convertView.findViewById(R.id.author);
             viewHolder.readDate = (TextView) convertView.findViewById(R.id.read_date);
+			viewHolder.minutes = (TextView) convertView.findViewById(R.id.minutes);
+			viewHolder.pagesRead = (TextView) convertView.findViewById(R.id.pages_read);
             viewHolder.thumbnail = (ImageView) convertView.findViewById(R.id.bookthumb);
             convertView.setTag(viewHolder);
         } else {
@@ -93,13 +103,33 @@ public class BookListCursorAdapter extends CursorAdapter {
 		viewHolder.title.setText(mCur.getString(mColIdxTitle));
 		viewHolder.author.setText(mCur.getString(mColIdxAuthor));
         viewHolder.readDate.setText(DbAdapterUtil.getDateInUserFormat(mCur.getString(mColIdxReadDate), mParentContext));
-		
+		viewHolder.minutes.setText(getDisplayedMinutes());
+		viewHolder.pagesRead.setText(getDisplayedPagesRead());
+
 		// handle the book thumbnail
 		String imageUrl = mCur.getString(mColIdxThumb);
 		viewHolder.thumbnail.setTag(imageUrl);
 		BitmapManager.INSTANCE.loadBitmap(imageUrl, viewHolder.thumbnail);  
 		
         return convertView;
+	}
+
+	private String getDisplayedPagesRead() {
+		int pagesRead = mCur.getInt(mColIdxPagesRead);
+		switch (pagesRead) {
+			case 0: return "";
+			case 1: return ", 1 page";
+			default: return ", " + pagesRead + " pages";
+		}
+	}
+
+	private String getDisplayedMinutes() {
+		int minutes = mCur.getInt(mColIdxMinutes);
+		switch (minutes) {
+			case 0: return "";
+			case 1: return ", " + BookLoggerUtil.formatMinutes(1) + " min";
+			default: return ", " + BookLoggerUtil.formatMinutes(minutes) + " mins";
+		}
 	}
 
 	@Override

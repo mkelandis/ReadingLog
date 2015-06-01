@@ -404,7 +404,7 @@ public class BookLoggerActivity extends Activity {
             	// create the pdf to send (had to switch to HTML for now)
             	BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this, keywords);
             	String title = (String) getTitle();
-            	File outputFile = htmlAdapter.makeHtml(title, title, cursor);            	
+            	File outputFile = htmlAdapter.makeHtml(title, title, cursor, getStatsCursor());
             	intent = new Intent(Intent.ACTION_SEND);
             	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
             	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext)); 
@@ -626,18 +626,10 @@ public class BookLoggerActivity extends Activity {
 
 		Cursor cursor = getListEntriesCursor();
         startManagingCursor(cursor);
-
         setTitle(mListName);
 
         // use a toast to display the book count...
-        if (cursor.getCount() == 1) {
-            Toast.makeText(getApplicationContext(),
-                    cursor.getCount() + " " + getString(R.string.title_books_singular), Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getApplicationContext(),
-                    cursor.getCount() + " " + getString(R.string.title_books_plural), Toast.LENGTH_LONG).show();
-        }
-
+		Toast.makeText(getApplicationContext(), getListStats(cursor), Toast.LENGTH_LONG).show();
 
 		// Now create a simple cursor adapter and set it to display
 		CursorAdapter books = new BookListCursorAdapter(this, cursor);
@@ -648,8 +640,41 @@ public class BookLoggerActivity extends Activity {
             Log.d(CLASSNAME, "*************\n" + DatabaseUtils.dumpCursorToString(cursor) + "*************\n");
         }
 	}
-	
-	
+
+	private String getListStats(Cursor cursor) {
+
+		StringBuffer listStats = new StringBuffer();
+		if (cursor.getCount() == 1) {
+			listStats.append("1 " + getString(R.string.title_books_singular));
+		} else {
+			listStats.append(cursor.getCount() + " " + getString(R.string.title_books_plural));
+		}
+
+		Cursor statsCursor = getStatsCursor();
+		try {
+			if (statsCursor.isBeforeFirst() && statsCursor.moveToFirst()) {
+				int pagesRead = statsCursor.getInt(1);
+				if (pagesRead == 1) {
+					listStats.append(", 1 page");
+				} else if (pagesRead > 1) {
+					listStats.append(", " + pagesRead + " pages");
+				}
+
+				int minutes = statsCursor.getInt(0);
+				if (minutes == 1) {
+					listStats.append(", " + BookLoggerUtil.formatMinutes(1) + " min");
+				} else if (minutes > 1) {
+					listStats.append(", " + BookLoggerUtil.formatMinutes(minutes) + " mins");
+				}
+			}
+		} finally {
+			statsCursor.close();
+		}
+
+		return listStats.toString();
+	}
+
+
 	private void setListAdapter(ListAdapter books) {
 		ListView view = (ListView) getListView();
 		view.setAdapter(books);
@@ -706,6 +731,10 @@ public class BookLoggerActivity extends Activity {
 		mListEntriesCursor = mDbHelper.fetchListEntries(mListId);
 		mListEntriesCursorDirty = false;
 		return mListEntriesCursor;
+	}
+
+	private Cursor getStatsCursor() {
+		return mDbHelper.fetchListStats(mListId);
 	}
 	
 	
