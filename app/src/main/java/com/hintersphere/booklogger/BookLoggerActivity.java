@@ -675,9 +675,18 @@ public class BookLoggerActivity extends Activity {
 	}
 
 
-	private void setListAdapter(ListAdapter books) {
-		ListView view = (ListView) getListView();
+	private void setListAdapter(final ListAdapter books) {
+		final ListView view = (ListView) getListView();
 		view.setAdapter(books);
+
+		// scroll to the last book...
+		view.post(new Runnable() {
+			@Override
+			public void run() {
+				// Select the last row so it will scroll into view...
+				view.setSelection(books.getCount() - 1);
+			}
+		});
 	}
 
 	/**
