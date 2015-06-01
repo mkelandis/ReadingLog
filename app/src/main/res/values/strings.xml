@@ -47,7 +47,7 @@
     <string name="title_delim">-</string>
     <string name="title_books_plural">books</string>
     <string name="title_books_singular">book</string>
-    <string name="pdf_eml_extratext">Your reading log is attached.</string>
+    <string name="pdf_eml_extratext">Your reading log is attached in multiple formats (html, csv).</string>
     <string name="pdf_eml_intenttitle">Email the Log.</string>
     <string name="pdf_doc_keywords">Reading Log Android Books Log School Parents</string>    
     <string name="pdf_doc_creator">ReadingLog for Android</string>    

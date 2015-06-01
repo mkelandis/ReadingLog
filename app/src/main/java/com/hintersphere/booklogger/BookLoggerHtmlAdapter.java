@@ -9,14 +9,8 @@ import java.util.Set;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Environment;
 
-import com.hintersphere.util.DbAdapterUtil;
-
-public class BookLoggerHtmlAdapter {
-
-	private Context mCtx;
-	private Set<String> mKeywords;
+public class BookLoggerHtmlAdapter extends ReportAdapter {
 
 	public BookLoggerHtmlAdapter(Context ctx, Set<String> keywords) {
 		super();
@@ -24,7 +18,7 @@ public class BookLoggerHtmlAdapter {
 		mKeywords = keywords;
 	}
 
-	public File makeHtml(String title, String subject, Cursor listCursor, Cursor statsCursor) {
+	public File makeHtml(String title, Cursor listCursor, Cursor statsCursor) {
 
 		if (listCursor.getCount() <= 0) {
 			throw new BookLoggerException("Cursor does not contain any fetched records.");
@@ -38,20 +32,10 @@ public class BookLoggerHtmlAdapter {
 			totalPages = statsCursor.getInt(1);
 		}
 
-
-		File outputFile = null;
-		File sdDir = Environment.getExternalStorageDirectory();
-		outputFile = new File(sdDir, "/booklog.html");
-
-		// // add metadata
-		// mDocument.addTitle(title);
-		// mDocument.addSubject(subject);
-		// mDocument.addKeywords(mCtx.getString(R.string.pdf_doc_keywords));
-		// mDocument.addAuthor(mCtx.getString(R.string.pdf_doc_author));
-		// mDocument.addCreator(mCtx.getString(R.string.pdf_doc_creator));
-
+		File outputFile = getOutputFile("readinglog.html");
+		Writer writer = null;
 		try {
-		    Writer writer = new BufferedWriter(new FileWriter(outputFile));
+		    writer = new BufferedWriter(new FileWriter(outputFile));
 
 		    writer.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd\">\n");
 		    writer.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n\n");
@@ -101,41 +85,23 @@ public class BookLoggerHtmlAdapter {
 		    writer.append("</tr>");		    
 		            
 		    while (listCursor.moveToNext()) {
-				
-				String booktitle = listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE));
-				String author = listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR));
-                String comment = listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_COMMENT));
-				int minutes = listCursor.getInt(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES));
-                int pagesRead = listCursor.getInt(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_PAGESREAD));
-				int readById = listCursor.getInt(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_ACTIVITY));
 
 				// append some keywords
+                String booktitle = getTitle(listCursor);
+                String author = getAuthor(listCursor);
+
 				mKeywords.add(booktitle);
 				mKeywords.add(author);
-				
+
 			    writer.append("<tr style=\"font-size: 12px;\" >\n");
-			    cell(writer, "" + (listCursor.getPosition() + 1));
-                cell(writer, DbAdapterUtil.getDateInUserFormat(
-								listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_DATEREAD)), mCtx),
-						"center");
+			    cell(writer, getBookIndex(listCursor));
+                cell(writer, getDateRead(listCursor), "center");
 				cell(writer, booktitle);
 			    cell(writer, author);
-				cell(writer, getReadBy(ReadBy.getById[readById]));
-
-				if (pagesRead <= 0) {
-					cell(writer, mCtx.getString(R.string.detail_hint_pagesread));
-				} else {
-					cell(writer, String.valueOf(pagesRead));
-				}
-
-				if (minutes <= 0) {
-	                cell(writer, mCtx.getString(R.string.detail_hint_minutes));				    
-				} else {
-                    cell(writer, BookLoggerUtil.formatMinutes(minutes));                 				    
-				}
-				
-				
-                cell(writer, comment != null ? comment : "");
+				cell(writer, getReadBy(listCursor));
+                cell(writer, getPagesRead(listCursor));
+                cell(writer, getMinutes(listCursor));
+                cell(writer, getComment(listCursor));
 			    cell(writer, "");  // empty cell for initials
 			    writer.append("</tr>");
 			}
@@ -148,25 +114,14 @@ public class BookLoggerHtmlAdapter {
 		    writer.close();
 		} catch (Exception e) {
 			throw new BookLoggerException("Error writing file.", e);
+		} finally {
+			BookLoggerUtil.closeQuietly(writer);
 		}
 		
 		return outputFile;
 	}
 
-	private String getReadBy(ReadBy readBy) {
-		switch (readBy) {
-            case CHILD:
-                return mCtx.getString(R.string.report_val_readbychild);
-            case PARENT:
-                return mCtx.getString(R.string.report_val_readbyparent);
-            case CHILD_PARENT:
-                return mCtx.getString(R.string.report_val_readbyparentchild);
-            default:
-                return mCtx.getString(R.string.report_val_readbyme);
-        }
-	}
-
-	private void summaryHeaderCell(Writer writer, String contents) throws IOException {
+    private void summaryHeaderCell(Writer writer, String contents) throws IOException {
 		writer.append("<th width=\"20%\" align=\"left\">");
 		writer.append(contents);
 		writer.append("</th>");

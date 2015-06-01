@@ -1,5 +1,7 @@
 package com.hintersphere.booklogger;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Locale;
 
 import com.google.ads.AdRequest;
@@ -41,5 +43,18 @@ public class BookLoggerUtil {
             adRequest.addTestDevice("66AE4425C6895E23FCD3DE8C581FCCD6");
         }
         return adRequest;        
+    }
+
+    /**
+     * @param closeable to be closed without generating exceptions if null or already closed.
+     */
+    public static void closeQuietly(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (IOException ioe) {
+            // do nothing.
+        }
     }
 }
