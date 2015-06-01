@@ -18,13 +18,13 @@ public class CsvReportAdapter extends ReportAdapter {
         mCtx = ctx;
     }
 
-    public File makeCsv(Cursor listCursor) {
+    public File makeCsv(String title, Cursor listCursor) {
 
         if (listCursor.getCount() <= 0) {
             throw new BookLoggerException("Cursor does not contain any fetched records.");
         }
 
-        File csvFile = getOutputFile("readinglog.csv");
+        File csvFile = getOutputFile(title + ".csv");
         CSVWriter writer = null;
         try {
             writer = new CSVWriter(new FileWriter(csvFile));

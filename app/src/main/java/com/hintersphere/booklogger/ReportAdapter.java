@@ -38,7 +38,7 @@ public abstract class ReportAdapter {
     protected String getMinutes(Cursor listCursor) {
         int minutes = listCursor.getInt(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES));
         if (minutes <= 0) {
-            return mCtx.getString(R.string.detail_hint_minutes);
+            return mCtx.getString(R.string.report_val_minutes_na);
         } else {
             return BookLoggerUtil.formatMinutes(minutes);
         }
@@ -47,7 +47,7 @@ public abstract class ReportAdapter {
     protected String getPagesRead(Cursor listCursor) {
         int pagesRead = listCursor.getInt(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_PAGESREAD));
         if (pagesRead <= 0) {
-            return mCtx.getString(R.string.detail_hint_pagesread);
+            return mCtx.getString(R.string.report_val_pagesread_na);
         } else {
             return String.valueOf(pagesRead);
         }

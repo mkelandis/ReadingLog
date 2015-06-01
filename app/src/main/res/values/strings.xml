@@ -70,6 +70,8 @@
     <string name="report_val_readbychild">Child</string>
     <string name="report_val_readbyparent">Parent</string>
     <string name="report_val_readbyparentchild">Together</string>
+    <string name="report_val_pagesread_na">n/a</string>
+    <string name="report_val_minutes_na">n/a</string>
     <string name="report_footer_tagline">ReadingLog for Android</string>
     <string name="admob_keywords">book|read|children\'s books|children|education|school|author|student|homework|summer reading</string>
     <string name="admob_pubid">a14e9f5100bf3fb</string>
