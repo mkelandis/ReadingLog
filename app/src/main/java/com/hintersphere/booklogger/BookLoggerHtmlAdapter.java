@@ -185,20 +185,4 @@ public class BookLoggerHtmlAdapter {
 		writer.append(contents);
 		writer.append("</d>");
 	}
-	
-	private String getTotalMinutes(Cursor cursor) {
-        int totalminutes = 0;
-        while (cursor.moveToNext()) {
-            int minutes = cursor.getInt(cursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_MINUTES));
-            if (minutes > 0) {
-                totalminutes += minutes;
-            }
-        }
-        cursor.moveToPosition(-1);
-        
-        if (totalminutes == 0) {
-            return  mCtx.getString(R.string.detail_hint_minutes);
-        }        
-        return BookLoggerUtil.formatMinutes(totalminutes);
-	}
 }
