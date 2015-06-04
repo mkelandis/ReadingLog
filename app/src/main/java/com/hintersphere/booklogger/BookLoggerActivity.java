@@ -48,6 +48,8 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.hintersphere.util.RestHelper;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 
 /**
  * Main activity class for the Book Logger - displays a list of books from the latest selected
@@ -404,12 +406,23 @@ public class BookLoggerActivity extends Activity {
             	// create the pdf to send (had to switch to HTML for now)
             	BookLoggerHtmlAdapter htmlAdapter = new BookLoggerHtmlAdapter(this, keywords);
             	String title = (String) getTitle();
-            	File outputFile = htmlAdapter.makeHtml(title, title, cursor);            	
-            	intent = new Intent(Intent.ACTION_SEND);
-            	intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
-            	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext)); 
-            	intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + outputFile.getAbsolutePath()));
-            	intent.setType("text/html");
+            	File htmlFile = htmlAdapter.makeHtml(title, cursor, getStatsCursor());
+
+                CsvReportAdapter csvAdapter = new CsvReportAdapter(this);
+                cursor.moveToPosition(-1);
+                File csvFile = csvAdapter.makeCsv(title, cursor);
+
+                intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+
+                intent.putExtra(Intent.EXTRA_SUBJECT, getTitle());
+            	intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pdf_eml_extratext));
+
+                ArrayList<Uri> uris = new ArrayList<Uri>();
+                uris.add(Uri.parse("file://" + htmlFile.getAbsolutePath()));
+                uris.add(Uri.parse("file://" + csvFile.getAbsolutePath()));
+
+                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+            	intent.setType("text/plain");
             	
             	// kick off the ad load before we start the send activity...
             	String pubId = getString(R.string.admob_pubid);
@@ -466,7 +479,7 @@ public class BookLoggerActivity extends Activity {
         ListView listView = (ListView) findViewById(R.id.mainlist);
         listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {                
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 startBookDetailsActivity(parent.getContext(), id);
             }
         });
@@ -626,18 +639,10 @@ public class BookLoggerActivity extends Activity {
 
 		Cursor cursor = getListEntriesCursor();
         startManagingCursor(cursor);
-
         setTitle(mListName);
 
         // use a toast to display the book count...
-        if (cursor.getCount() == 1) {
-            Toast.makeText(getApplicationContext(),
-                    cursor.getCount() + " " + getString(R.string.title_books_singular), Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getApplicationContext(),
-                    cursor.getCount() + " " + getString(R.string.title_books_plural), Toast.LENGTH_LONG).show();
-        }
-
+		Toast.makeText(getApplicationContext(), getListStats(cursor), Toast.LENGTH_LONG).show();
 
 		// Now create a simple cursor adapter and set it to display
 		CursorAdapter books = new BookListCursorAdapter(this, cursor);
@@ -648,11 +653,53 @@ public class BookLoggerActivity extends Activity {
             Log.d(CLASSNAME, "*************\n" + DatabaseUtils.dumpCursorToString(cursor) + "*************\n");
         }
 	}
-	
-	
-	private void setListAdapter(ListAdapter books) {
-		ListView view = (ListView) getListView();
+
+	private String getListStats(Cursor cursor) {
+
+		StringBuffer listStats = new StringBuffer();
+		if (cursor.getCount() == 1) {
+			listStats.append("1 " + getString(R.string.title_books_singular));
+		} else {
+			listStats.append(cursor.getCount() + " " + getString(R.string.title_books_plural));
+		}
+
+		Cursor statsCursor = getStatsCursor();
+		try {
+			if (statsCursor.isBeforeFirst() && statsCursor.moveToFirst()) {
+				int pagesRead = statsCursor.getInt(1);
+				if (pagesRead == 1) {
+					listStats.append(", 1 page");
+				} else if (pagesRead > 1) {
+					listStats.append(", " + pagesRead + " pages");
+				}
+
+				int minutes = statsCursor.getInt(0);
+				if (minutes == 1) {
+					listStats.append(", " + BookLoggerUtil.formatMinutes(1) + " min");
+				} else if (minutes > 1) {
+					listStats.append(", " + BookLoggerUtil.formatMinutes(minutes) + " mins");
+				}
+			}
+		} finally {
+			statsCursor.close();
+		}
+
+		return listStats.toString();
+	}
+
+
+	private void setListAdapter(final ListAdapter books) {
+		final ListView view = (ListView) getListView();
 		view.setAdapter(books);
+
+		// scroll to the last book...
+		view.post(new Runnable() {
+            @Override
+            public void run() {
+                // Select the last row so it will scroll into view...
+                view.setSelection(books.getCount() - 1);
+            }
+        });
 	}
 
 	/**
@@ -706,6 +753,10 @@ public class BookLoggerActivity extends Activity {
 		mListEntriesCursor = mDbHelper.fetchListEntries(mListId);
 		mListEntriesCursorDirty = false;
 		return mListEntriesCursor;
+	}
+
+	private Cursor getStatsCursor() {
+		return mDbHelper.fetchListStats(mListId);
 	}
 	
 	

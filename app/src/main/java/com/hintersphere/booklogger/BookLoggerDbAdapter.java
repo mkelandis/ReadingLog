@@ -264,18 +264,15 @@ public class BookLoggerDbAdapter {
     }
 
     public Cursor fetchBookList(long rowid) {
-
-        Cursor cursor = null;
         try {
-            cursor = mDb.query(DB_TAB_BOOKLIST, new String[] { DB_COL_ID, DB_COL_NAME }, DB_WHERE_BOOKLIST,
+            return mDb.query(DB_TAB_BOOKLIST, new String[] { DB_COL_ID, DB_COL_NAME }, DB_WHERE_BOOKLIST,
                     new String[] { String.valueOf(rowid) }, null, null, null);
         } catch (Exception e) {
             if (BookLoggerUtil.LOG_ENABLED) {
                 Log.e(CLASSNAME, "Error fetching booklist for id = " + rowid, e);
             }
+            throw new BookLoggerException("Error fetching booklist for id = " + rowid, e);
         }
-
-        return cursor;
     }
 
     /**
@@ -364,11 +361,13 @@ public class BookLoggerDbAdapter {
      * @param minutes spent reading to be updated
      * @param readBy person who read the book (parent/child/together)
      * @param comment to be updated
+     * @param pagesRead number of pages read
      * @return true or false if the update failed.
      */
-    public boolean updateBookEntry(long rowId, int minutes, short readBy, String comment) {
+    public boolean updateBookEntry(long rowId, int minutes, short readBy, String comment, int pagesRead) {
         ContentValues args = new ContentValues();
         args.put(DB_COL_MINUTES, minutes);
+        args.put(DB_COL_PAGESREAD, pagesRead);
         args.put(DB_COL_ACTIVITY, readBy);
         args.put(DB_COL_COMMENT, comment);
         return mDb.update(DB_TAB_LISTENTRY, args, DB_COL_ID + "=" + rowId, null) > 0;
@@ -420,19 +419,18 @@ public class BookLoggerDbAdapter {
      * @return Cursor over all listentries
      */
     public Cursor fetchListEntries(long listid) {
-        Cursor cursor = null;
         try {
-            cursor = mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB,
-                    DB_COL_ACTIVITY, DB_COL_COMMENT, DB_COL_DATEREAD, DB_COL_MINUTES, DB_COL_CREATEDT },
+            return mDb.query(DB_TAB_LISTENTRY, new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB,
+                            DB_COL_ACTIVITY, DB_COL_COMMENT, DB_COL_DATEREAD, DB_COL_MINUTES, DB_COL_CREATEDT,
+                            DB_COL_PAGESREAD},
                     DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) }, null, null, DB_COL_DATEREAD + ", "
                             + DB_COL_CREATEDT);
         } catch (Exception e) {
             if (BookLoggerUtil.LOG_ENABLED) {
                 Log.e(CLASSNAME, "Error fetching list entries by id", e);
             }
+            throw new BookLoggerException("Error fetching list entries by list id " + listid, e);
         }
-
-        return cursor;
     }
 
     /**
@@ -442,19 +440,33 @@ public class BookLoggerDbAdapter {
      * @return Cursor with single row returned.
      */
     public Cursor fetchListEntry(long listEntryId) {
-        Cursor cursor = null;
         try {
-            cursor = mDb.query(DB_TAB_LISTENTRY,
+            return mDb.query(DB_TAB_LISTENTRY,
                     new String[] { DB_COL_ID, DB_COL_TITLE, DB_COL_AUTHOR, DB_COL_THUMB, DB_COL_ACTIVITY,
-                            DB_COL_DATEREAD, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT },
+                            DB_COL_DATEREAD, DB_COL_CREATEDT, DB_COL_MINUTES, DB_COL_DATEREAD, DB_COL_COMMENT,
+                            DB_COL_PAGESREAD },
                     DB_WHERE_LISTENTRY, new String[] { String.valueOf(listEntryId) }, null, null, null);
         } catch (Exception e) {
             if (BookLoggerUtil.LOG_ENABLED) {
                 Log.e(CLASSNAME, "Error fetching list entries by id", e);
             }
-            throw new BookLoggerException("Error fetching list entries by id", e);
+            throw new BookLoggerException("Error fetching list entries by entry id " + listEntryId , e);
         }
+    }
 
-        return cursor;
+    /**
+     * @param listid to retrieve stats
+     * @return stats for a single list (sum of minutes, sum of pages read)
+     */
+    public Cursor fetchListStats(long listid) {
+        try {
+            return mDb.rawQuery("SELECT SUM(" + DB_COL_MINUTES + "), SUM(" + DB_COL_PAGESREAD + ") FROM "
+                            + DB_TAB_LISTENTRY + " WHERE " + DB_WHERE_LISTENTRIES, new String[] { String.valueOf(listid) });
+        } catch (Exception e) {
+            if (BookLoggerUtil.LOG_ENABLED) {
+                Log.e(CLASSNAME, "Error fetching list entries by id", e);
+            }
+            throw new BookLoggerException("Error fetching list stats by list id " + listid, e);
+        }
     }
 }
