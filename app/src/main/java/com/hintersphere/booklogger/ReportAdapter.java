@@ -17,7 +17,7 @@ public abstract class ReportAdapter {
     protected Context mCtx;
     protected Set<String> mKeywords;
 
-    protected String getReadBy(ReadBy readBy) {
+    private String getReadBy(ReadBy readBy) {
         switch (readBy) {
             case CHILD:
                 return mCtx.getString(R.string.report_val_readbychild);
@@ -55,7 +55,7 @@ public abstract class ReportAdapter {
 
     protected String getComment(Cursor listCursor) {
         String comment = listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_COMMENT));
-        return comment != null ? comment : "";
+        return comment == null ? "" : comment;
     }
 
     protected String getReadBy(Cursor listCursor) {
@@ -64,11 +64,13 @@ public abstract class ReportAdapter {
     }
 
     protected String getAuthor(Cursor listCursor) {
-        return listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR));
+        String author = listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_AUTHOR));
+        return author == null ? "" : author;
     }
 
     protected String getTitle(Cursor listCursor) {
-        return listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE));
+        String title = listCursor.getString(listCursor.getColumnIndex(BookLoggerDbAdapter.DB_COL_TITLE));
+        return title == null ? "" : title;
     }
 
     protected String getDateRead(Cursor listCursor) {
